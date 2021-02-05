@@ -9,3 +9,7 @@ Reimplements of meta learning paper using pytorch
 ### 2. Prototypical Networks for Few-shot Learning
 
 #### [Prototypical Networks](prototypical)
+
+### 3. Learning to Compare: Relation Networks for Few-Shot Learning
+
+#### [Relation Networks](relation)
