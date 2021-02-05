@@ -18,6 +18,10 @@ warnings.filterwarnings("ignore")
 BASEDIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
+def get_data_dir():
+    return os.path.join(BASEDIR, 'data')
+
+
 class MiniImagenetDataset(Dataset):
     def __init__(self, mode='train'):
         super().__init__()
