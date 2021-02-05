@@ -1,3 +1,11 @@
+# Custom
+**/data/*
+.idea/
+**/runs/*
+
+# Except
+!data/vinyals
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
