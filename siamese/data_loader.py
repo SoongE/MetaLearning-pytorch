@@ -6,7 +6,7 @@ import numpy as np
 import torch
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset
-from torchvision import datasets as dset, transforms
+from torchvision import datasets as dset
 from albumentations.pytorch import ToTensorV2
 import albumentations as A
 
@@ -78,6 +78,7 @@ class OmniglotTrain(Dataset):
             ])
         else:
             trans = A.Compose([
+                A.Resize(28, 28),
                 A.Normalize(mean=self.mean, std=self.std),
                 ToTensorV2(),
             ])
@@ -123,9 +124,10 @@ class OmniglotTest:
             while self.image1[1] == image2[1]:
                 image2 = random.choice(self.dataset.imgs)
 
-        trans = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize(mean=self.mean, std=self.std)
+        trans = A.Compose([
+            A.Resize(28, 28),
+            A.Normalize(mean=self.mean, std=self.std),
+            ToTensorV2(),
         ])
 
         image1 = Image.open(self.image1[0]).convert('L')
