@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 from data_loader import get_train_validation_loader, get_test_loader
 from siamesenet import SiameseNet
-from utils.one_cycle_policy import OneCyclePolicy
+from siamese.one_cycle_policy import OneCyclePolicy
 from utils.train_utils import AverageMeter
 
 

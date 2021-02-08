@@ -77,6 +77,7 @@ class OmniglotTrain(Dataset):
             ])
         else:
             trans = A.Compose([
+                A.Resize(28, 28),
                 A.Normalize(mean=self.mean, std=self.std),
                 ToTensorV2(),
             ])
