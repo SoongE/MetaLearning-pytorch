@@ -1,5 +1,8 @@
 import os
+import sys
 from glob import glob
+
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 import torch
 import torch.optim as optim
@@ -70,7 +73,7 @@ class Trainer(object):
         # create tensorboard summary and add model structure.
         writer = SummaryWriter(os.path.join(self.config.logs_dir, 'logs'), filename_suffix=self.config.num_model)
         im1, im2, _ = next(iter(valid_loader))
-        writer.add_graph(model, [im1.to(self.device), im2.to(self.device)])
+        writer.add_graph(model, [torch.rand((1, 1, 105, 105)).to(self.device), torch.rand(1, 1, 105, 105).to(self.device)])
 
         counter = 0
         num_train = len(train_loader)
