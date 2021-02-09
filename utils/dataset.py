@@ -23,9 +23,17 @@ def get_data_dir():
 
 
 class MiniImagenetDataset(Dataset):
-    def __init__(self, mode='train'):
+    def __init__(self, mode='train', transform=None):
         super().__init__()
         self.root_dir = BASEDIR + '/data/miniImagenet'
+
+        if transform is None:
+            self.transform = A.Compose([
+                A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+                ToTensorV2(),
+            ])
+        else:
+            self.transform = transform
 
         if not os.path.exists(self.root_dir):
             print('Data not found. Downloading data')
@@ -41,17 +49,10 @@ class MiniImagenetDataset(Dataset):
             self.y[s] = idx
 
     def __getitem__(self, index):
-
         img = self.x[index]
+        x = self.transform(image=img)['image']
 
-        transform = A.Compose([
-            A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-            ToTensorV2(),
-        ])
-
-        x = transform(image=img)['image']
-
-        return x.permute(0, 1, 2), self.y[index]
+        return x, self.y[index]
 
     def __len__(self):
         return len(self.x)
