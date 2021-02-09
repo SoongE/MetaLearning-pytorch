@@ -9,24 +9,28 @@ from utils.dataset import OmniglotDataset, MiniImagenetDataset, get_data_dir
 DATADIR = get_data_dir()
 
 
-def get_dataloader(args, dataset, *modes):
+def get_dataloader(args, *modes):
     res = []
     print("Loading data...", end='')
     for mode in modes:
-        if dataset == 'omniglot':
+        if args.dataset == 'omniglot':
             mdb_path = os.path.join(DATADIR, 'relation_mdb', 'omniglot_' + mode + '.mdb')
             try:
                 dataset = torch.load(mdb_path)
             except FileNotFoundError:
                 dataset = OmniglotDataset(mode)
+                if not os.path.exists(os.path.dirname(mdb_path)):
+                    os.makedirs(os.path.dirname(mdb_path))
                 torch.save(dataset, mdb_path)
 
-        elif dataset == 'miniImagenet':
+        elif args.dataset == 'miniImagenet':
             mdb_path = os.path.join(DATADIR, 'relation_mdb', 'miniImagenet_' + mode + '.mdb')
             try:
                 dataset = torch.load(mdb_path)
             except FileNotFoundError:
                 dataset = MiniImagenetDataset(mode)
+                if not os.path.exists(os.path.dirname(mdb_path)):
+                    os.makedirs(os.path.dirname(mdb_path))
                 torch.save(dataset, mdb_path)
 
         if 'train' in mode:
