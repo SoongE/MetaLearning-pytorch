@@ -23,6 +23,8 @@ def get_dataloader(args, dataset, *modes):
                 dataset = torch.load(mdb_path)
             except FileNotFoundError:
                 dataset = OmniglotDataset(mode)
+                if not os.path.exists(os.path.dirname(mdb_path)):
+                    os.makedirs(os.path.dirname(mdb_path))
                 torch.save(dataset, mdb_path)
 
         elif dataset == 'miniImagenet':
@@ -31,6 +33,8 @@ def get_dataloader(args, dataset, *modes):
                 dataset = torch.load(mdb_path)
             except FileNotFoundError:
                 dataset = MiniImagenetDataset(mode)
+                if not os.path.exists(os.path.dirname(mdb_path)):
+                    os.makedirs(os.path.dirname(mdb_path))
                 torch.save(dataset, mdb_path)
 
         if 'train' in mode:
