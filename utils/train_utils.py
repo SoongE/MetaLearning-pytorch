@@ -1,3 +1,7 @@
+import os
+import torch
+
+
 class AverageMeter(object):
     """Computes and stores the average and current value"""
 
@@ -31,3 +35,17 @@ def accuracy(output, target, topk=(1,)):
 
     return res
     # return res, pred[:1].squeeze(0)
+
+
+def save_checkpoint(state, is_best, args):
+    directory = args.log_dir
+    filename = directory + f"/checkpoint_{state['epoch']}.pth"
+
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    torch.save(state, filename)
+
+    if is_best:
+        filename = directory + "/model_best.pth"
+        torch.save(state, filename)

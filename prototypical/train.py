@@ -12,7 +12,7 @@ from models.protonet import ProtoNet
 from models.resnet import ResNet
 from prototypical_loss import PrototypicalLoss
 
-from utils.train_utils import AverageMeter
+from utils.train_utils import AverageMeter, save_checkpoint
 
 best_acc1 = 0
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -24,7 +24,6 @@ def main():
     global args, best_acc1, device
 
     # Init seed
-    torch.cuda.cudnn_enabled = False
     np.random.seed(args.manual_seed)
     torch.manual_seed(args.manual_seed)
     torch.cuda.manual_seed(args.manual_seed)
@@ -53,15 +52,12 @@ def main():
         start_epoch = checkpoint['epoch']
         best_acc1 = checkpoint['best_acc1']
 
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer=optimizer,
-                                                    gamma=args.lr_scheduler_gamma,
-                                                    step_size=args.lr_scheduler_step)
         print(f"load checkpoint {args.exp_name}")
     else:
         start_epoch = 0
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer=optimizer,
-                                                    gamma=args.lr_scheduler_gamma,
-                                                    step_size=args.lr_scheduler_step)
+
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer=optimizer, gamma=args.lr_scheduler_gamma,
+                                                step_size=args.lr_scheduler_step)
 
     print(f"model parameter : {sum(p.numel() for p in model.parameters() if p.requires_grad)}")
 
@@ -81,7 +77,7 @@ def main():
             'model_state_dict': model.state_dict(),
             'best_acc1': best_acc1,
             'optimizer_state_dict': optimizer.state_dict(),
-        }, is_best)
+        }, is_best, args)
 
         writer.add_scalar("Loss/1Epoch", val_loss, epoch)
         writer.add_scalar("Acc/1Epoch", acc1, epoch)
@@ -141,20 +137,6 @@ def validate(val_loader, model, criterion, epoch):
         writer.add_scalar("Acc/Val", acc1.item(), total_epoch + i)
 
     return losses.avg, top1.avg
-
-
-def save_checkpoint(state, is_best):
-    directory = args.log_dir
-    filename = directory + f"/checkpoint_{state['epoch']}.pth"
-
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
-    torch.save(state, filename)
-
-    if is_best:
-        filename = directory + "/model_best.pth"
-        torch.save(state, filename)
 
 
 if __name__ == '__main__':
