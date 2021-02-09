@@ -2,10 +2,10 @@ import os
 
 import warnings
 
-import numpy as np
 import torch
-
 from torch.utils.data import DataLoader
+import numpy as np
+
 from utils.dataset import OmniglotDataset, MiniImagenetDataset, get_data_dir
 
 warnings.filterwarnings("ignore")
@@ -21,7 +21,7 @@ def get_dataloader(args, dataset, *modes):
             mdb_path = os.path.join(DATADIR, 'proto_mdb', 'omniglot_' + mode + '.mdb')
             try:
                 dataset = torch.load(mdb_path)
-            except Exception:
+            except FileNotFoundError:
                 dataset = OmniglotDataset(mode)
                 torch.save(dataset, mdb_path)
 
@@ -29,7 +29,7 @@ def get_dataloader(args, dataset, *modes):
             mdb_path = os.path.join(DATADIR, 'proto_mdb', 'miniImagenet_' + mode + '.mdb')
             try:
                 dataset = torch.load(mdb_path)
-            except Exception:
+            except FileNotFoundError:
                 dataset = MiniImagenetDataset(mode)
                 torch.save(dataset, mdb_path)
 
@@ -43,7 +43,8 @@ def get_dataloader(args, dataset, *modes):
             num_query = args.num_query_val
 
         sampler = PrototypicalBatchSampler(dataset.y, classes_per_it, num_support, num_query, args.iterations)
-        data_loader = DataLoader(dataset, batch_sampler=sampler)
+        data_loader = DataLoader(dataset, batch_sampler=sampler,
+                                 pin_memory=True if torch.cuda.is_available() else False)
         res.append(data_loader)
 
     print("done")
