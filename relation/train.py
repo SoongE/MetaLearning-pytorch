@@ -28,11 +28,18 @@ def main():
     torch.manual_seed(args.manual_seed)
     torch.cuda.manual_seed(args.manual_seed)
 
-    train_loader, val_loader = get_dataloader(args, args.dataset, 'train', 'val')
-    in_channel = 3 if args.dataset == 'miniImagenet' else 1
+    train_loader, val_loader = get_dataloader(args, 'train', 'val')
+    if args.dataset == 'miniImagenet':
+        in_channel = 3
+        feature_dim = 64 * 3 * 3
+    elif args.dataset == 'omniglot':
+        in_channel = 3
+        feature_dim = 64
+    else:
+        raise ValueError(f"Dataset {args.dataset} is not supported")
 
     embedding = Embedding(in_channel)
-    model = RelationNetwork().to(device)
+    model = RelationNetwork(feature_dim).to(device)
 
     criterion = torch.nn.MSELoss()
 
@@ -96,18 +103,16 @@ def train(train_loader, model, embedding, model_optimizer, embed_optimizer, crit
     num_class = args.classes_per_it_tr
     num_support = args.num_support_tr
     num_query = args.num_query_tr
-    num_sample = num_class * num_support
     total_epoch = len(train_loader) * epoch
 
     model.train()
     embedding.train()
     for i, data in enumerate(train_loader):
         x, y = data[0].to(device), data[1].to(device)
-        support_x, query_x = x[:num_sample], x[num_sample:]
-        _, query_y = y[:num_sample], y[num_sample:]
+        x_support, x_query, y_query = split_support_query_set(x, y, num_class, num_support, num_query)
 
-        support_vector = embedding(support_x)
-        query_vector = embedding(query_x)
+        support_vector = embedding(x_support)
+        query_vector = embedding(x_query)
 
         _size = support_vector.size()
 
@@ -119,7 +124,7 @@ def train(train_loader, model, embedding, model_optimizer, embed_optimizer, crit
 
         output = model(_concat).view(-1, num_class)
 
-        y_one_hot = torch.zeros(num_query * num_class, num_class).scatter_(1, query_y, 1)
+        y_one_hot = torch.zeros(num_query * num_class, num_class).scatter_(1, y_query.unsqueeze(1), 1)
         loss = criterion(output, y_one_hot)
 
         losses.update(loss.item(), output.size(0))
@@ -179,3 +184,25 @@ def validate(val_loader, model, embedding, criterion, epoch):
         writer.add_scalar("Acc/Val", accuracy, total_epoch + i)
 
     return losses.avg, accuracies.avg
+
+
+def split_support_query_set(x, y, num_class, num_support, num_query):
+    num_sample_support = num_class * num_support
+    x_support, x_query = x[:num_sample_support], x[num_sample_support:]
+    y_support, y_query = y[:num_sample_support], y[num_sample_support:]
+
+    _classes = torch.unique(y_support)
+
+    support_idx = torch.stack(list(map(lambda c: y_support.eq(c).nonzero().squeeze(1), _classes)))
+    xs = torch.cat([x_support[idx_list] for idx_list in support_idx])
+
+    query_idx = torch.stack(list(map(lambda c: y_query.eq(c).nonzero().squeeze(1), _classes)))
+    xq = torch.cat([x_query[idx_list] for idx_list in query_idx])
+
+    yq = torch.LongTensor([x for x in range(len(_classes)) for _ in range(num_query)]).to(device)
+
+    return xs, xq, yq
+
+
+if __name__ == '__main__':
+    main()
