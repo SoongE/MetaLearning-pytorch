@@ -2,7 +2,7 @@
 
 Reimplements of meta learning paper using pytorch
 
-### 1. Siamese Networks for One-shot Image Recognition
+### 1. Siamese Neural Networks for One-shot Image Recognition
 
 #### [Siamese Networks](siamese)
 
