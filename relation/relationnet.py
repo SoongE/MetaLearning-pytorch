@@ -24,12 +24,16 @@ class Embedding(nn.Module):
 
 
 class RelationNetwork(nn.Module):
-    def __init__(self, hidden_dim=8):
+    def __init__(self, feature_dim, hidden_dim=8):
         super().__init__()
-        self.layer1 = ConvBlock(128, 64, 3, max_pool=2, padding=1)
-        self.layer2 = ConvBlock(64, 64, 3, max_pool=2, padding=1)
+        if feature_dim == 64:
+            self.layer1 = ConvBlock(128, 64, 3, max_pool=2, padding=1)
+            self.layer2 = ConvBlock(64, 64, 3, max_pool=2, padding=1)
+        else:
+            self.layer1 = ConvBlock(128, 64, 3, max_pool=2)
+            self.layer2 = ConvBlock(64, 64, 3, max_pool=2)
 
-        self.fc1 = nn.Linear(64, hidden_dim)
+        self.fc1 = nn.Linear(feature_dim, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim, 1)
 
         self.relu = nn.ReLU(inplace=True)
@@ -53,10 +57,10 @@ if __name__ == '__main__':
     num_query = 15
 
     embedding = Embedding(in_channel=3)
-    model = RelationNetwork()
+    model = RelationNetwork(64 * 3 * 3)
 
-    out1 = embedding(torch.rand((class_per_it * num_support, 3, 32, 32)))
-    out2 = embedding(torch.rand((class_per_it * num_query, 3, 32, 32)))
+    out1 = embedding(torch.rand((class_per_it * num_support, 3, 84, 84)))
+    out2 = embedding(torch.rand((class_per_it * num_query, 3, 84, 84)))
 
     out1_size = out1.size()
 
@@ -76,6 +80,9 @@ if __name__ == '__main__':
         label.append(random.randint(0, 3))
 
     label = torch.tensor(label).unsqueeze(1)
+
+    print(label.shape)
+    print(num_query*class_per_it,class_per_it)
 
     one_hot = torch.zeros(num_query * class_per_it, class_per_it).scatter_(1, label, 1)
 
