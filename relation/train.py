@@ -61,14 +61,19 @@ def main():
     else:
         start_epoch = 0
 
-    embed_scheduler = torch.optim.lr_scheduler.MultiplicativeLR(optimizer=embed_optimizer,
-                                                                lr_lambda=lambda epoch: 0.5)
-    model_scheduler = torch.optim.lr_scheduler.MultiplicativeLR(optimizer=model_optimizer,
-                                                                lr_lambda=lambda epoch: 0.5)
+    # embed_scheduler = torch.optim.lr_scheduler.MultiplicativeLR(optimizer=embed_optimizer,
+    #                                                             lr_lambda=lambda epoch: 0.5)
+    # model_scheduler = torch.optim.lr_scheduler.MultiplicativeLR(optimizer=model_optimizer,
+    #                                                             lr_lambda=lambda epoch: 0.5)
+    embed_scheduler = torch.optim.lr_scheduler.StepLR(embed_optimizer, step_size=10, gamma=0.5)
+    model_scheduler = torch.optim.lr_scheduler.StepLR(model_optimizer, step_size=10, gamma=0.5)
 
     print(f"model parameter : {sum(p.numel() for p in model.parameters() if p.requires_grad)}")
 
     for epoch in range(start_epoch, args.epochs):
+        embed_scheduler.step()
+        model_scheduler.step()
+
         train_loss = train(train_loader, model, embedding, model_optimizer, embed_optimizer, criterion, epoch)
         val_loss, acc1 = validate(val_loader, model, embedding, criterion, epoch)
 
@@ -89,9 +94,6 @@ def main():
             }, is_best, args)
 
             writer.add_scalar("BestAcc", acc1, epoch)
-
-        embed_scheduler.step()
-        model_scheduler.step()
 
         print(f"[{epoch}/{args.epochs}] {train_loss:.3f}, {val_loss:.3f}, {acc1:.3f}, # {best_acc1:.3f}")
 
