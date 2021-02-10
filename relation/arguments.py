@@ -22,7 +22,7 @@ parser.add_argument('--lr', '--learning_rate',
 parser.add_argument('-epi', '--episodes',
                     type=int,
                     help='number of episodes per epoch, default=100000',
-                    default=100000)
+                    default=10000)
 
 parser.add_argument('-cTr', '--classes_per_it_tr',
                     type=int,
