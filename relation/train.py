@@ -38,7 +38,7 @@ def main():
     else:
         raise ValueError(f"Dataset {args.dataset} is not supported")
 
-    embedding = Embedding(in_channel)
+    embedding = Embedding(in_channel).to(device)
     model = RelationNetwork(feature_dim).to(device)
 
     criterion = torch.nn.MSELoss()
@@ -124,7 +124,7 @@ def train(train_loader, model, embedding, model_optimizer, embed_optimizer, crit
 
         output = model(_concat).view(-1, num_class)
 
-        y_one_hot = torch.zeros(num_query * num_class, num_class).scatter_(1, y_query.unsqueeze(1), 1)
+        y_one_hot = torch.zeros(num_query * num_class, num_class).to(device).scatter_(1, y_query.unsqueeze(1), 1)
         loss = criterion(output, y_one_hot)
 
         losses.update(loss.item(), output.size(0))
@@ -145,21 +145,19 @@ def validate(val_loader, model, embedding, criterion, epoch):
     losses = AverageMeter()
     accuracies = AverageMeter()
 
-    num_class = args.classes_per_it_tr
-    num_support = args.num_support_tr
-    num_query = args.num_query_tr
-    num_sample = num_class * num_support
+    num_class = args.classes_per_it_val
+    num_support = args.num_support_val
+    num_query = args.num_query_val
     total_epoch = len(val_loader) * epoch
 
-    model.val()
-    embedding.val()
+    model.eval()
+    embedding.eval()
     for i, data in enumerate(val_loader):
         x, y = data[0].to(device), data[1].to(device)
-        support_x, query_x = x[:num_sample], x[num_sample:]
-        _, query_y = y[:num_sample], y[num_sample:]
+        x_support, x_query, y_query = split_support_query_set(x, y, num_class, num_support, num_query)
 
-        support_vector = embedding(support_x)
-        query_vector = embedding(query_x)
+        support_vector = embedding(x_support)
+        query_vector = embedding(x_query)
 
         _size = support_vector.size()
 
@@ -171,13 +169,13 @@ def validate(val_loader, model, embedding, criterion, epoch):
 
         output = model(_concat).view(-1, num_class)
 
-        y_one_hot = torch.zeros(num_query * num_class, num_class).scatter_(1, query_y, 1)
+        y_one_hot = torch.zeros(num_query * num_class, num_class).to(device).scatter_(1, y_query.unsqueeze(1), 1)
         loss = criterion(output, y_one_hot)
 
         losses.update(loss.item(), output.size(0))
 
         y_hat = output.argmax(1)
-        accuracy = y_hat.eq(query_y).float().mean()
+        accuracy = y_hat.eq(y_query).float().mean()
         accuracies.update(accuracy)
 
         writer.add_scalar("Loss/Val", loss.item(), total_epoch + i)
