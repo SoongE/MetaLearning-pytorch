@@ -1,9 +1,11 @@
 import os
+import sys
 import json
 from glob import glob
 from types import SimpleNamespace
 
-import numpy as np
+sys.path.append(os.path.dirname(os.path.realpath(os.path.dirname(__file__))))
+
 import torch
 import torch.backends.cudnn as cudnn
 
@@ -13,7 +15,7 @@ from models.protonet import ProtoNet
 from models.resnet import ResNet
 from prototypical_loss import PrototypicalLoss
 
-from utils.train_utils import AverageMeter, save_checkpoint
+from utils.train_utils import AverageMeter
 
 best_acc1 = 0
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -31,7 +33,7 @@ def main():
 
     runs_path = glob('runs/*')
     max_len_exp = max([len(x) for x in runs_path])
-    print(f"|{'Experiment':^max_len_exp}|{'Loss':^10}|{'ACC'}:^10|")
+    print(f"|{'Experiment':^{max_len_exp}}|{'Loss':^10}|{'ACC'}:^10|")
 
     for exp in glob('runs/*'):
         checkpoint, args = None, None
@@ -62,7 +64,7 @@ def main():
 
         loss, acc = test(test_loader, model, criterion)
 
-        print()
+        print(f"|{exp:^{max_len_exp}}|{loss:^10}|{acc}:^10|")
 
 
 @torch.no_grad()
@@ -83,3 +85,7 @@ def test(test_loader, model, criterion):
         top1.update(acc1.item(), input.size(0))
 
     return losses.avg, top1.avg
+
+
+if __name__ == '__main__':
+    main()
