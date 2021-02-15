@@ -9,7 +9,7 @@ import torch
 import torch.backends.cudnn as cudnn
 from torch.utils.tensorboard import SummaryWriter
 
-from arguments import get_config
+from arguments import get_args
 from dataloader import get_dataloader
 from models.protonet import ProtoNet
 from models.resnet import ResNet
@@ -19,7 +19,7 @@ from utils.train_utils import AverageMeter, save_checkpoint
 
 best_acc1 = 0
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-args = get_config()
+args = get_args()
 writer = SummaryWriter(args.log_dir)
 
 
