@@ -11,7 +11,7 @@ class ConvBlock(torch.nn.Module):
                  groups=1,
                  bias=True,
                  use_bn=True,
-                 max_pool=2,
+                 max_pool=None,
                  activation="relu"):
         super().__init__()
         self.use_bn = use_bn
