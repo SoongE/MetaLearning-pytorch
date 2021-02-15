@@ -43,7 +43,7 @@ def main():
 
     criterion = torch.nn.MSELoss()
 
-    embed_optimizer = torch.optim.Adam(model.parameters(), args.lr)
+    embed_optimizer = torch.optim.Adam(embedding.parameters(), args.lr)
     model_optimizer = torch.optim.Adam(model.parameters(), args.lr)
 
     cudnn.benchmark = True
@@ -120,7 +120,7 @@ def train(train_loader, model, embedding, model_optimizer, embed_optimizer, crit
 
         support_vector = support_vector.view(num_class, num_support, _size[1], _size[2], _size[3]).sum(dim=1)
         support_vector = support_vector.repeat(num_class * num_query, 1, 1, 1)
-        query_vector = query_vector.repeat(num_class, 1, 1, 1)
+        query_vector = torch.stack([x for x in query_vector for _ in range(num_class)])
 
         _concat = torch.cat((support_vector, query_vector), dim=1)
 
@@ -165,7 +165,7 @@ def validate(val_loader, model, embedding, criterion, epoch):
 
         support_vector = support_vector.view(num_class, num_support, _size[1], _size[2], _size[3]).sum(dim=1)
         support_vector = support_vector.repeat(num_class * num_query, 1, 1, 1)
-        query_vector = query_vector.repeat(num_class, 1, 1, 1)
+        query_vector = torch.stack([x for x in query_vector for _ in range(num_class)])
 
         _concat = torch.cat((support_vector, query_vector), dim=1)
 
