@@ -10,10 +10,10 @@ class ProtoNet(nn.Module):
 
     def __init__(self, input_dim, hid_dim=64, z_dim=64):
         super(ProtoNet, self).__init__()
-        self.block1 = ConvBlock(input_dim, hid_dim, 3, padding=1)
-        self.block2 = ConvBlock(hid_dim, hid_dim, 3, padding=1)
-        self.block3 = ConvBlock(hid_dim, hid_dim, 3, padding=1)
-        self.block4 = ConvBlock(hid_dim, z_dim, 3, padding=1)
+        self.block1 = ConvBlock(input_dim, hid_dim, 3, max_pool=2, padding=1)
+        self.block2 = ConvBlock(hid_dim, hid_dim, 3, max_pool=2, padding=1)
+        self.block3 = ConvBlock(hid_dim, hid_dim, 3, max_pool=2, padding=1)
+        self.block4 = ConvBlock(hid_dim, z_dim, 3, max_pool=2, padding=1)
 
     def forward(self, x):
         out = self.block1(x)
