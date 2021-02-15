@@ -83,8 +83,3 @@ def test(test_loader, model, criterion):
         top1.update(acc1.item(), input.size(0))
 
     return losses.avg, top1.avg
-
-
-if __name__ == '__main__':
-    max_len_exp = 10
-    print(f"|{'Experiment':^16}|{'Loss':^10}|{'ACC':^9}|")
