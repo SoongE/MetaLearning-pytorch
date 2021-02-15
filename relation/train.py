@@ -2,12 +2,12 @@ import os
 import sys
 from glob import glob
 
+sys.path.append(os.path.dirname(os.path.realpath(os.path.dirname(__file__))))
+
 import torch
 import torch.backends.cudnn as cudnn
 from torch.utils.tensorboard import SummaryWriter
 import numpy as np
-
-sys.path.append(os.path.dirname(os.path.realpath(os.path.dirname(__file__))))
 
 from arguments import get_args
 from dataloader import get_dataloader
