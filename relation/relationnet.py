@@ -24,7 +24,7 @@ class Embedding(nn.Module):
 
 
 class RelationNetwork(nn.Module):
-    def __init__(self, feature_dim, hidden_dim=8):
+    def __init__(self, feature_dim):
         super().__init__()
         if feature_dim == 64:
             self.layer1 = ConvBlock(128, 64, 3, max_pool=2, padding=1)
@@ -33,8 +33,8 @@ class RelationNetwork(nn.Module):
             self.layer1 = ConvBlock(128, 64, 3, max_pool=2)
             self.layer2 = ConvBlock(64, 64, 3, max_pool=2)
 
-        self.fc1 = nn.Linear(feature_dim, hidden_dim)
-        self.fc2 = nn.Linear(hidden_dim, 1)
+        self.fc1 = nn.Linear(feature_dim, 8)
+        self.fc2 = nn.Linear(8, 1)
 
         self.relu = nn.ReLU(inplace=True)
         self.sigmoid = nn.Sigmoid()
@@ -43,6 +43,7 @@ class RelationNetwork(nn.Module):
         out = self.layer1(x)
         out = self.layer2(out)
         out = out.view(out.size(0), -1)
+        print(out.shape)
         out = self.relu(self.fc1(out))
         out = self.sigmoid(self.fc2(out))
 
@@ -81,11 +82,11 @@ if __name__ == '__main__':
 
     label = torch.tensor(label).unsqueeze(1)
 
-    print(label.shape)
-    print(num_query*class_per_it,class_per_it)
+    # print(label.shape)
+    # print(num_query*class_per_it,class_per_it)
 
     one_hot = torch.zeros(num_query * class_per_it, class_per_it).scatter_(1, label, 1)
 
     criterion = nn.MSELoss()
     loss = criterion(final, one_hot)
-    print(loss)
+    # print(loss)
