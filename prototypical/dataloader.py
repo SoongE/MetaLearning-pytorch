@@ -16,7 +16,8 @@ DATADIR = get_data_dir()
 
 def get_dataloader(args, dataset, *modes):
     res = []
-    print("Loading data...", end='')
+    if modes[0] != 'test':
+        print("Loading data...", end='')
     for mode in modes:
         if dataset == 'omniglot':
             mdb_path = os.path.join(DATADIR, 'proto_mdb', 'omniglot_' + mode + '.mdb')
@@ -52,7 +53,8 @@ def get_dataloader(args, dataset, *modes):
                                  pin_memory=True if torch.cuda.is_available() else False)
         res.append(data_loader)
 
-    print("done")
+    if modes[0] != 'test':
+        print("done")
     if len(modes) == 1:
         return res[0]
     else:
@@ -131,3 +133,13 @@ class PrototypicalBatchSampler(Sampler):
         returns the number of iterations (episodes) per epoch
         """
         return self.iterations
+
+
+if __name__ == '__main__':
+    from arguments import get_args
+
+    args = get_args()
+    loader = get_dataloader(args, 'miniImagenet', 'val')
+
+    for data in loader:
+        pass
