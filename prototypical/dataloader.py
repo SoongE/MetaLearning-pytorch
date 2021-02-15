@@ -69,7 +69,7 @@ class PrototypicalBatchSampler(Sampler):
     __len__ returns the number of episodes per epoch (same as 'self.iterations').
     """
 
-    def __init__(self, labels, classes_per_it, num_samples_support, num_samples_query, iterations):
+    def __init__(self, labels, classes_per_it, num_samples_support, num_samples_query, iterations, data_source=None):
         """
         Initialize the PrototypicalBatchSampler object
         Args:
@@ -79,7 +79,7 @@ class PrototypicalBatchSampler(Sampler):
         - num_samples: number of samples for each iteration for each class (support + query)
         - iterations: number of iterations (episodes) per epoch
         """
-        super().__init__()
+        super().__init__(data_source)
         self.labels = labels
         self.classes_per_it = classes_per_it
         self.num_samples_support = num_samples_support

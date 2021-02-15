@@ -56,8 +56,8 @@ def get_dataloader(args, *modes):
 
 
 class RelationBatchSampler(Sampler):
-    def __init__(self, labels, classes_per_it, num_support, num_query, episodes):
-        super().__init__()
+    def __init__(self, labels, classes_per_it, num_support, num_query, episodes, data_source=None):
+        super().__init__(data_source)
         self.labels = labels
         self.classes_per_it = classes_per_it
         self.num_support = num_support
