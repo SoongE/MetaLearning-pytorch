@@ -43,7 +43,6 @@ class RelationNetwork(nn.Module):
         out = self.layer1(x)
         out = self.layer2(out)
         out = out.view(out.size(0), -1)
-        print(out.shape)
         out = self.relu(self.fc1(out))
         out = self.sigmoid(self.fc2(out))
 
