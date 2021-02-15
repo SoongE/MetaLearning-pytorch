@@ -16,14 +16,12 @@ from models.protonet import ProtoNet
 from models.resnet import ResNet
 from prototypical_loss import PrototypicalLoss
 
-from utils.train_utils import AverageMeter
 from utils.common import margin_of_error
 
 best_acc1 = 0
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-te', '--test_iter', type=int, help='number of test iteration', default=500)
 args = parser.parse_args()
 
 
@@ -50,6 +48,10 @@ def main():
             elif file.endswith('.json'):
                 params = json.load(open(os.path.abspath(file)))
                 args = SimpleNamespace(**params)
+                if args.dataset == 'omniglot':
+                    args.iteration = 1000
+                else:
+                    args.iteration = 600
 
         if checkpoint is None or args is None:
             except_list.append(f"checkpoint and params are not exist in {exp}")
@@ -66,7 +68,7 @@ def main():
         model.load_state_dict(checkpoint['model_state_dict'])
         best_acc1 = checkpoint['best_acc1']
 
-        loss_list, acc_list = test(test_loader, model, criterion, args.test_iter)
+        loss_list, acc_list = test(test_loader, model, criterion)
 
         loss, loss_moe = margin_of_error(loss_list)
         acc, acc_moe = margin_of_error(acc_list)
@@ -80,29 +82,23 @@ def main():
 
 
 @torch.no_grad()
-def test(test_loader, model, criterion, test_iter):
+def test(test_loader, model, criterion):
     num_support = args.num_support_val
-    loss_list = []
-    acc_list = []
+    losses = []
+    top1 = []
     # switch to evaluate mode
     model.eval()
 
-    for _ in range(test_iter):
-        losses = AverageMeter()
-        top1 = AverageMeter()
-        for i, data in enumerate(test_loader):
-            input, target = data[0].to(device), data[1].to(device)
+    for i, data in enumerate(test_loader):
+        input, target = data[0].to(device), data[1].to(device)
 
-            output = model(input)
-            loss, acc1 = criterion(output, target, num_support)
+        output = model(input)
+        loss, acc1 = criterion(output, target, num_support)
 
-            losses.update(loss.item(), input.size(0))
-            top1.update(acc1.item(), input.size(0))
+        losses.append(loss)
+        top1.append(acc1)
 
-        loss_list.append(losses.avg)
-        acc_list.append(top1.avg)
-
-    return loss_list, acc_list
+    return losses, top1
 
 
 if __name__ == '__main__':
