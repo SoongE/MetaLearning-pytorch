@@ -28,11 +28,12 @@ def main():
     torch.manual_seed(args.manual_seed)
     torch.cuda.manual_seed(args.manual_seed)
 
-    train_loader, val_loader = get_dataloader(args, 'train', 'val')
     if args.dataset == 'miniImagenet':
+        train_loader, val_loader = get_dataloader(args, 'train', 'val')
         in_channel = 3
         feature_dim = 64 * 3 * 3
     elif args.dataset == 'omniglot':
+        train_loader, val_loader = get_dataloader(args, 'trainval', 'test')
         in_channel = 3
         feature_dim = 64
     else:
