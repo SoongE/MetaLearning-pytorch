@@ -1,6 +1,6 @@
-import os
-import json
 import argparse
+
+from utils.common import CustomArgs
 
 parser = argparse.ArgumentParser()
 
@@ -89,41 +89,5 @@ parser.add_argument('--resume', action="store_true", help="resume train")
 parser.set_defaults(resume=False)
 
 
-def get_config():
-    args = parser.parse_args()
-    args.log_dir = os.path.join(args.log_dir, args.exp_name)
-    if args.resume:
-        args = load_args(args)
-    else:
-        save_args(args)
-
-    return args
-
-
-def save_args(args):
-    directory = args.log_dir
-    param_path = os.path.join(directory, 'params.json')
-
-    if not os.path.exists(f'runs/{args.exp_name}'):
-        os.makedirs(directory)
-
-    if not os.path.isfile(param_path):
-        print(f"Save params in {param_path}")
-
-        all_params = args.__dict__
-        with open(param_path, 'w') as fp:
-            json.dump(all_params, fp, indent=4, sort_keys=True)
-    else:
-        print(f"Config file already exist.")
-        # raise ValueError
-
-
-def load_args(args):
-    param_path = os.path.join(args.log_dir, 'params.json')
-    params = json.load(open(param_path))
-
-    args.__dict__.update(params)
-
-    args.resume = True
-
-    return args
+def get_args():
+    return CustomArgs(parser).get()
