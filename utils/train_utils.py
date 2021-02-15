@@ -44,8 +44,8 @@ def save_checkpoint(state, is_best, args):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    torch.save(state, filename)
-
     if is_best:
         filename = directory + "/model_best.pth"
+        torch.save(state, filename)
+    else:
         torch.save(state, filename)
