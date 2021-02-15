@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import argparse
 from glob import glob
 from pprint import pprint as pp
 from types import SimpleNamespace
@@ -10,18 +11,19 @@ sys.path.append(os.path.dirname(os.path.realpath(os.path.dirname(__file__))))
 import torch
 import torch.backends.cudnn as cudnn
 
-import argparse
 from dataloader import get_dataloader
 from models.protonet import ProtoNet
 from models.resnet import ResNet
 from prototypical_loss import PrototypicalLoss
 
 from utils.train_utils import AverageMeter
+from utils.common import margin_of_error
 
 best_acc1 = 0
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 parser = argparse.ArgumentParser()
+parser.add_argument('-te', '--test_iter', type=int, help='number of test iteration', default=500)
 args = parser.parse_args()
 
 
@@ -34,9 +36,10 @@ def main():
 
     runs_path = glob('runs/*')
     max_len_exp = max([len(x) for x in runs_path])
-    print(f"|{'Experiment':^{max_len_exp}}|{'Loss':^10}|{'ACC':^10}|")
+    print(f"|{'Experiment':^{max_len_exp}}|{'Loss':^16}|{'ACC':^16}|")
 
     except_list = []
+    pl_mi = u"\u00B1"
 
     for exp in glob('runs/*'):
         checkpoint, args = None, None
@@ -63,31 +66,43 @@ def main():
         model.load_state_dict(checkpoint['model_state_dict'])
         best_acc1 = checkpoint['best_acc1']
 
-        loss, acc = test(test_loader, model, criterion)
+        loss_list, acc_list = test(test_loader, model, criterion, args.test_iter)
 
-        print(f"|{exp:^{max_len_exp}}|{loss:^10.3f}|{acc:^10.3f}|")
+        loss, loss_moe = margin_of_error(loss_list)
+        acc, acc_moe = margin_of_error(acc_list)
+
+        loss_string = f'{loss:.3f} {pl_mi} {loss_moe:.3f}'
+        acc_string = f'{acc:.3f} {pl_mi} {acc_moe:.3f}'
+
+        print(f"|{exp:^{max_len_exp}}|{loss_string:^16}|{acc_string:^16}|")
 
     pp(except_list)
 
 
 @torch.no_grad()
-def test(test_loader, model, criterion):
-    losses = AverageMeter()
-    top1 = AverageMeter()
+def test(test_loader, model, criterion, test_iter):
     num_support = args.num_support_val
-
+    loss_list = []
+    acc_list = []
     # switch to evaluate mode
     model.eval()
-    for i, data in enumerate(test_loader):
-        input, target = data[0].to(device), data[1].to(device)
 
-        output = model(input)
-        loss, acc1 = criterion(output, target, num_support)
+    for _ in range(test_iter):
+        losses = AverageMeter()
+        top1 = AverageMeter()
+        for i, data in enumerate(test_loader):
+            input, target = data[0].to(device), data[1].to(device)
 
-        losses.update(loss.item(), input.size(0))
-        top1.update(acc1.item(), input.size(0))
+            output = model(input)
+            loss, acc1 = criterion(output, target, num_support)
 
-    return losses.avg, top1.avg
+            losses.update(loss.item(), input.size(0))
+            top1.update(acc1.item(), input.size(0))
+
+        loss_list.append(losses.avg)
+        acc_list.append(top1.avg)
+
+    return loss_list, acc_list
 
 
 if __name__ == '__main__':
