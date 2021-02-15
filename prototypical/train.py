@@ -1,5 +1,8 @@
 import os
+import sys
 from glob import glob
+
+sys.path.append(os.path.dirname(os.path.realpath(os.path.dirname(__file__))))
 
 import numpy as np
 import torch
