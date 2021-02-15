@@ -4,6 +4,7 @@ import torch
 import numpy as np
 
 from torch.utils.data import DataLoader
+from torch.utils.data.sampler import Sampler
 from utils.dataset import OmniglotDataset, MiniImagenetDataset, get_data_dir
 
 DATADIR = get_data_dir()
@@ -54,7 +55,7 @@ def get_dataloader(args, *modes):
         return res
 
 
-class RelationBatchSampler(object):
+class RelationBatchSampler(Sampler):
     def __init__(self, labels, classes_per_it, num_support, num_query, episodes):
         super().__init__()
         self.labels = labels

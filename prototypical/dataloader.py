@@ -4,6 +4,7 @@ import warnings
 
 import torch
 from torch.utils.data import DataLoader
+from torch.utils.data.sampler import Sampler
 import numpy as np
 
 from utils.dataset import OmniglotDataset, MiniImagenetDataset, get_data_dir
@@ -58,7 +59,7 @@ def get_dataloader(args, dataset, *modes):
         return res
 
 
-class PrototypicalBatchSampler(object):
+class PrototypicalBatchSampler(Sampler):
     """
     PrototypicalBatchSampler: yield a batch of indexes at each iteration.
     Indexes are calculated by keeping in account 'classes_per_it' and 'num_samples',
@@ -78,7 +79,7 @@ class PrototypicalBatchSampler(object):
         - num_samples: number of samples for each iteration for each class (support + query)
         - iterations: number of iterations (episodes) per epoch
         """
-        super(PrototypicalBatchSampler, self).__init__()
+        super().__init__()
         self.labels = labels
         self.classes_per_it = classes_per_it
         self.num_samples_support = num_samples_support
