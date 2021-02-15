@@ -1,6 +1,5 @@
 # Prototypical Networks for Few Shot Learning using Pytorch
-A implementation of the
-paper : [Prototypical Networks for Few Shot Learning](https://arxiv.org/pdf/1703.05175.pdf) using pytorch. In the model, somethings, such as learning rates or regression, may differ from the original paper.
+A implementation of the NIPS 2017 paper : [Prototypical Networks for Few Shot Learning](https://arxiv.org/pdf/1703.05175.pdf) using pytorch. In the model, somethings, such as learning rates or regression, may differ from the original paper.
 
 I posted the details of the code in ***Korean*** on my [blog](https://rhcsky.tistory.com/10), so if you are interested, please visit!
 
