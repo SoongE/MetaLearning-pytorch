@@ -42,3 +42,4 @@ class CustomArgs:
 
     def get(self):
         return self.args
+
