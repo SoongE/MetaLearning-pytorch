@@ -34,7 +34,7 @@ def main():
         feature_dim = 64 * 3 * 3
     elif args.dataset == 'omniglot':
         train_loader, val_loader = get_dataloader(args, 'trainval', 'test')
-        in_channel = 3
+        in_channel = 1
         feature_dim = 64
     else:
         raise ValueError(f"Dataset {args.dataset} is not supported")
