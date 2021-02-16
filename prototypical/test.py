@@ -48,16 +48,17 @@ def main():
             elif file.endswith('.json'):
                 params = json.load(open(os.path.abspath(file)))
                 args = SimpleNamespace(**params)
-                if args.dataset == 'omniglot':
-                    args.iteration = 1000
-                else:
-                    args.iteration = 600
 
         if checkpoint is None or args is None:
             except_list.append(f"checkpoint and params are not exist in {exp}")
             continue
 
-        test_loader = get_dataloader(args, args.dataset, 'val')
+        if args.dataset == 'omniglot':
+            args.iteration = 1000
+            test_loader = get_dataloader(args, args.dataset, 'test')
+        else:
+            args.iteration = 600
+            test_loader = get_dataloader(args, args.dataset, 'val')
 
         input_dim = 1 if args.dataset == 'omniglot' else 3
         if args.model == 'protonet':
