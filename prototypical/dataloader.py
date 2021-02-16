@@ -16,7 +16,7 @@ DATADIR = get_data_dir()
 
 def get_dataloader(args, dataset, *modes):
     res = []
-    if modes[0] != 'test':
+    if 'train' in modes[0]:
         print("Loading data...", end='')
     for mode in modes:
         if dataset == 'omniglot':
@@ -53,8 +53,8 @@ def get_dataloader(args, dataset, *modes):
                                  pin_memory=True if torch.cuda.is_available() else False)
         res.append(data_loader)
 
-    if modes[0] != 'test':
-        print("done")
+    if 'train' in modes[0]:
+        print("Loading data...", end='')
     if len(modes) == 1:
         return res[0]
     else:
