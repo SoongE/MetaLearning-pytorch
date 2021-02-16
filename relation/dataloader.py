@@ -12,7 +12,8 @@ DATADIR = get_data_dir()
 
 def get_dataloader(args, *modes):
     res = []
-    print("Loading data...", end='')
+    if 'train' in modes[0]:
+        print("Loading data...", end='')
     for mode in modes:
         if args.dataset == 'omniglot':
             mdb_path = os.path.join(DATADIR, 'relation_mdb', 'omniglot_' + mode + '.mdb')
@@ -48,7 +49,8 @@ def get_dataloader(args, *modes):
                                  pin_memory=True if torch.cuda.is_available() else False)
         res.append(data_loader)
 
-    print("done")
+    if 'train' in modes[0]:
+        print("Loading data...", end='')
     if len(modes) == 1:
         return res[0]
     else:

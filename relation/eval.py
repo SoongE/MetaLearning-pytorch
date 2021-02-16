@@ -60,11 +60,11 @@ def main():
         if args.dataset == 'miniImagenet':
             in_channel = 3
             feature_dim = 64 * 3 * 3
-            test_loader = get_dataloader(args, args.dataset, 'val')
+            test_loader = get_dataloader(args, 'val')
         elif args.dataset == 'omniglot':
             in_channel = 3
             feature_dim = 64
-            test_loader = get_dataloader(args, args.dataset, 'test')
+            test_loader = get_dataloader(args, 'test')
         else:
             raise ValueError(f"Dataset {args.dataset} is not supported")
 
