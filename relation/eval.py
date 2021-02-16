@@ -33,8 +33,8 @@ def main():
     cudnn.benchmark = True
 
     runs_path = glob('runs/*')
-    max_len_exp = max([len(x) for x in runs_path])
-    print(f"|{'Experiment':^{max_len_exp}}|{'Loss':^16}|{'ACC':^16}|")
+    max_len_exp = max([len(x) for x in runs_path]) + 2
+    print(f"|{'Experiment':^{max_len_exp}}|{'Loss':^17}|{'ACC':^17}|")
 
     except_list = []
     pl_mi = u"\u00B1"
