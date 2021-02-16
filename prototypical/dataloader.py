@@ -133,13 +133,3 @@ class PrototypicalBatchSampler(Sampler):
         returns the number of iterations (episodes) per epoch
         """
         return self.iterations
-
-
-if __name__ == '__main__':
-    from arguments import get_args
-
-    args = get_args()
-    loader = get_dataloader(args, 'miniImagenet', 'val')
-
-    for data in loader:
-        pass
