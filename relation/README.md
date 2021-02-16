@@ -27,7 +27,7 @@ I will post the details of the code in ***Korean*** on my [blog]() soon, so if y
    If trained models are exists, you can test the model. Below command will test the entire model in `runs/exp_name` 
 
    ```bash
-   python test.py
+   python eval.py
    ```
 
 All parameters are present in `arguments.py`. If you want to adjust the parameters, modify them and run the code.
