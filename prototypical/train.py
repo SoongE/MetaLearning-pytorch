@@ -106,12 +106,12 @@ def train(train_loader, model, optimizer, criterion, epoch):
     # switch to train mode
     model.train()
     for i, data in enumerate(train_loader):
-        input, target = data[0].to(device), data[1].to(device)
+        x, y = data[0].to(device), data[1].to(device)
 
-        output = model(input)
-        loss, acc1 = criterion(output, target, num_support)
+        y_pred = model(x)
+        loss, acc1 = criterion(y_pred, y, num_support)
 
-        losses.update(loss.item(), input.size(0))
+        losses.update(loss.item(), x.size(0))
 
         # compute gradient and do optimize step
         optimizer.zero_grad()
@@ -134,13 +134,13 @@ def validate(val_loader, model, criterion, epoch):
     # switch to evaluate mode
     model.eval()
     for i, data in enumerate(val_loader):
-        input, target = data[0].to(device), data[1].to(device)
+        x, y = data[0].to(device), data[1].to(device)
 
-        output = model(input)
-        loss, acc1 = criterion(output, target, num_support)
+        y_pred = model(x)
+        loss, acc1 = criterion(y_pred, y, num_support)
 
-        losses.update(loss.item(), input.size(0))
-        top1.update(acc1.item(), input.size(0))
+        losses.update(loss.item(), x.size(0))
+        top1.update(acc1.item(), x.size(0))
 
         writer.add_scalar("Loss/Val", loss.item(), total_epoch + i)
         writer.add_scalar("Acc/Val", acc1.item(), total_epoch + i)
