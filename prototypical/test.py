@@ -79,7 +79,8 @@ def main():
 
         print(f"|{exp:^{max_len_exp}}|{loss_string:^16}|{acc_string:^16}|")
 
-    pp(except_list)
+    if len(except_list):
+        pp(except_list)
 
 
 @torch.no_grad()
