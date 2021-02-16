@@ -14,12 +14,12 @@ warnings.filterwarnings("ignore")
 DATADIR = get_data_dir()
 
 
-def get_dataloader(args, dataset, *modes):
+def get_dataloader(args, *modes):
     res = []
     if 'train' in modes[0]:
         print("Loading data...", end='')
     for mode in modes:
-        if dataset == 'omniglot':
+        if args.dataset == 'omniglot':
             mdb_path = os.path.join(DATADIR, 'proto_mdb', 'omniglot_' + mode + '.mdb')
             try:
                 dataset = torch.load(mdb_path)
@@ -29,7 +29,7 @@ def get_dataloader(args, dataset, *modes):
                     os.makedirs(os.path.dirname(mdb_path))
                 torch.save(dataset, mdb_path)
 
-        elif dataset == 'miniImagenet':
+        elif args.dataset == 'miniImagenet':
             mdb_path = os.path.join(DATADIR, 'proto_mdb', 'miniImagenet_' + mode + '.mdb')
             try:
                 dataset = torch.load(mdb_path)

@@ -32,10 +32,10 @@ def main():
     torch.cuda.manual_seed(args.manual_seed)
 
     if args.dataset == 'omniglot':
-        train_loader, val_loader = get_dataloader(args, args.dataset, 'trainval', 'test')
+        train_loader, val_loader = get_dataloader(args, 'trainval', 'test')
         input_dim = 1
     else:
-        train_loader, val_loader = get_dataloader(args, args.dataset, 'train', 'val')
+        train_loader, val_loader = get_dataloader(args, 'train', 'val')
         input_dim = 3
 
     if args.model == 'protonet':

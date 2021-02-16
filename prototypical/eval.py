@@ -55,10 +55,10 @@ def main():
 
         if args.dataset == 'omniglot':
             args.iteration = 1000
-            test_loader = get_dataloader(args, args.dataset, 'test')
+            test_loader = get_dataloader(args, 'test')
         else:
             args.iteration = 600
-            test_loader = get_dataloader(args, args.dataset, 'val')
+            test_loader = get_dataloader(args, 'val')
 
         input_dim = 1 if args.dataset == 'omniglot' else 3
         if args.model == 'protonet':
