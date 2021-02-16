@@ -29,16 +29,22 @@ I will post the details of the code in ***Korean*** on my [blog]() soon, so if y
    ```bash
    python eval.py
    ```
+   
+4. #### Logs
+
+   Train logs, saved model and configuration data were in `run/exp_name`. Logs are made by `tensorboard`. So if you want to see more detail about train metrics, write commend on like this.
+
+   ```bash
+   tensorboard --logdir=runs
+   ```
+
+   
 
 All parameters are present in `arguments.py`. If you want to adjust the parameters, modify them and run the code.
 
 ### 📈Result
 
-Train logs, saved model and configuration data were in `run/exp_name`. Logs are made by `tensorboard`. So if you want to see more detail about train metrics, write commend on like this.
-
-```
-tensorboard --logdir=runs
-```
+will be soon.
 
 
 
