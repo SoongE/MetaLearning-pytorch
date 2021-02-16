@@ -2,7 +2,7 @@
 
 A implementation of the CVPR 2018 paper : [Learning to Compare: Relation Network for Few-Shot Learning](https://arxiv.org/pdf/1711.06025.pdf) using pytorch. In the model, somethings, such as learning rates or regression, may differ from the original paper.
 
-I will post the details of the code in ***Korean*** on my [blog]() soon, so if you are interested, please visit!
+I will post the details of the code in ***Korean*** on my [blog]()(will be soon.) so if you are interested, please visit!
 
 한글로 논문과 코드에 대해 작성한 글이 있으니 관심있으신 분은 확인해보세요!
 
