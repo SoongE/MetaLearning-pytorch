@@ -39,7 +39,26 @@ Train logs, saved model and configuration data were in `run/exp_name`. Logs are 
 tensorboard --logdir=runs
 ```
 
+| Model                            | Reference Paper | This Repo    |
+| -------------------------------- | --------------- | ------------ |
+| Omniglot 5-w 1-s                 | 98.8%           | 98.8 ± 0.4%  |
+| Omniglot 5-w 5-s                 | 99.7%           | 99.5 ± 0.2%  |
+| Omniglot 20-w 1-s                | 96.0%           | 95.4 ± 0.5%  |
+| Omniglot 20-w 1-s                | 98.9%           | 98.6 ± 0.2%  |
+| miniImagenet 5-w 1-s             | 49.42 ± 0.78%   | 43.5 ± 2%    |
+| miniImagenet 5-w 5-s             | 68.20 ± 0.66%   | 63.7 ± 1.8%  |
+| miniImagenet 5-w 1-s with resnet | -               | will be soon |
+| miniImagenet 5-w 5-s with resnet | -               | will be soon |
 
+miniImagenet with resnet just tried it for interest.
+
+
+
+**Graph**
+<p align="center">
+    <img src="asset\omniglot_result.png" height=320>
+    <img src="asset\mini_result.png" height=320>
+</p>
 
 
 
