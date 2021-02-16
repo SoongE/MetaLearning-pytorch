@@ -50,7 +50,10 @@ def main():
     cudnn.benchmark = True
 
     if args.resume:
-        checkpoint = torch.load(sorted(glob(f'{args.log_dir}/checkpoint_*.pth'), key=len)[-1])
+        try:
+            checkpoint = torch.load(sorted(glob(f'{args.log_dir}/checkpoint_*.pth'), key=len)[-1])
+        except:
+            checkpoint = torch.load(args.log_dir + '/model_best.pth')
         model.load_state_dict(checkpoint['model_state_dict'])
         embedding.load_state_dict(checkpoint['embedding_state_dict'])
         model_optimizer.load_state_dict(checkpoint['model_optimizer_state_dict'])
