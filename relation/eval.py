@@ -114,14 +114,14 @@ def test(test_loader, model, embedding, criterion):
 
         _concat = torch.cat((support_vector, query_vector), dim=1)
 
-        output = model(_concat).view(-1, num_class)
+        y_pred = model(_concat).view(-1, num_class)
 
         y_one_hot = torch.zeros(num_query * num_class, num_class).to(device).scatter_(1, y_query.unsqueeze(1), 1)
-        loss = criterion(output, y_one_hot)
+        loss = criterion(y_pred, y_one_hot)
 
         losses.append(loss.item())
 
-        y_hat = output.argmax(1)
+        y_hat = y_pred.argmax(1)
         accuracy = y_hat.eq(y_query).float().mean()
         accuracies.append(accuracy)
 

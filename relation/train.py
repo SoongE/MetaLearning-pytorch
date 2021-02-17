@@ -132,12 +132,12 @@ def train(train_loader, model, embedding, model_optimizer, embed_optimizer, crit
 
         _concat = torch.cat((support_vector, query_vector), dim=1)
 
-        output = model(_concat).view(-1, num_class)
+        y_pred = model(_concat).view(-1, num_class)
 
         y_one_hot = torch.zeros(num_query * num_class, num_class).to(device).scatter_(1, y_query.unsqueeze(1), 1)
-        loss = criterion(output, y_one_hot)
+        loss = criterion(y_pred, y_one_hot)
 
-        losses.update(loss.item(), output.size(0))
+        losses.update(loss.item(), y_pred.size(0))
 
         model_optimizer.zero_grad()
         embed_optimizer.zero_grad()

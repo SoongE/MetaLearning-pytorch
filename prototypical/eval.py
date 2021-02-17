@@ -92,10 +92,10 @@ def test(test_loader, model, criterion):
     model.eval()
 
     for i, data in enumerate(test_loader):
-        input, target = data[0].to(device), data[1].to(device)
+        x, y = data[0].to(device), data[1].to(device)
 
-        output = model(input)
-        loss, acc1 = criterion(output, target, num_support)
+        y_pred = model(x)
+        loss, acc1 = criterion(y_pred, y, num_support)
 
         losses.append(loss)
         top1.append(acc1)
