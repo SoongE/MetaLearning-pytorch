@@ -22,10 +22,10 @@ def get_data_dir():
     return os.path.join(BASEDIR, 'data')
 
 
-class MiniImagenetDataset(Dataset):
+class MiniImageNetDataset(Dataset):
     def __init__(self, mode='train', transform=None):
         super().__init__()
-        self.root_dir = BASEDIR + '/data/miniImagenet'
+        self.root_dir = BASEDIR + '/data/miniImageNet'
 
         if transform is None:
             self.transform = A.Compose([
@@ -61,7 +61,7 @@ class MiniImagenetDataset(Dataset):
         import tarfile
         gdrive_id = '16V_ZlkW4SsnNDtnGmaBRq2OoPmUOc5mY'
         gz_filename = 'mini-imagenet.tar.gz'
-        root = BASEDIR + '/data/miniImagenet'
+        root = BASEDIR + '/data/miniImageNet'
 
         self.download_file_from_google_drive(gdrive_id, root, gz_filename)
 
@@ -70,9 +70,9 @@ class MiniImagenetDataset(Dataset):
         with tarfile.open(filename, 'r') as f:
             f.extractall(root)
 
-        os.rename(BASEDIR + '/data/miniImagenet/mini-imagenet-cache-train.pkl', BASEDIR + '/data/miniImagenet/train')
-        os.rename(BASEDIR + '/data/miniImagenet/mini-imagenet-cache-val.pkl', BASEDIR + '/data/miniImagenet/val')
-        os.rename(BASEDIR + '/data/miniImagenet/mini-imagenet-cache-test.pkl', BASEDIR + '/data/miniImagenet/test')
+        os.rename(BASEDIR + '/data/miniImageNet/mini-imagenet-cache-train.pkl', BASEDIR + '/data/miniImageNet/train')
+        os.rename(BASEDIR + '/data/miniImageNet/mini-imagenet-cache-val.pkl', BASEDIR + '/data/miniImageNet/val')
+        os.rename(BASEDIR + '/data/miniImageNet/mini-imagenet-cache-test.pkl', BASEDIR + '/data/miniImageNet/test')
 
     def download_file_from_google_drive(self, file_id, root, filename):
         from torchvision.datasets.utils import _get_confirm_token, _save_response_content
