@@ -137,3 +137,7 @@ def validate(val_loader, model, criterion, epoch):
         writer.add_scalar("Acc/Val", acc.item(), total_epoch + i)
 
     return losses.avg, accuracies.avg
+
+
+if __name__ == '__main__':
+    main()
