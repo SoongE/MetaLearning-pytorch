@@ -106,7 +106,7 @@ def train(train_loader, model, optimizer, criterion, epoch):
 
         optimizer.zero_grad()
         loss.backward()
-        clip_grad_norm_(model.parameters(), 1)
+        clip_grad_norm_(model.parameters(), 3)
         optimizer.step()
 
         writer.add_scalar("Loss/Train", loss.item(), total_epoch + i)
@@ -125,7 +125,7 @@ def validate(val_loader, model, criterion, epoch):
     for i, data in enumerate(val_loader):
         x, y = data[0].to(device), data[1].to(device)
 
-        y_pred, y = model(x, y, is_train=False)
+        y_pred, y = model(x, y)
 
         loss = criterion(y_pred, y)
         acc = y_pred.argmax(dim=1).eq(y).float().mean()
