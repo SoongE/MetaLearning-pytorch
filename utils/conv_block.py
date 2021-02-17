@@ -45,6 +45,7 @@ class ConvBlock(torch.nn.Module):
 
 
 def get_activation(activation):
+    activation = activation.lower()
     if activation == "relu":
         return torch.nn.ReLU(inplace=True)
     elif activation == "relu6":
