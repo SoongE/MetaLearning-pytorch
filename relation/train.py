@@ -28,7 +28,7 @@ def main():
     torch.manual_seed(args.manual_seed)
     torch.cuda.manual_seed(args.manual_seed)
 
-    if args.dataset == 'miniImagenet':
+    if args.dataset == 'miniImageNet':
         train_loader, val_loader = get_dataloader(args, 'train', 'val')
         in_channel = 3
         feature_dim = 64 * 3 * 3
