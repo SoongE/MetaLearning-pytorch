@@ -72,6 +72,10 @@ def main():
     embed_scheduler = torch.optim.lr_scheduler.StepLR(embed_optimizer, step_size=10, gamma=0.5)
     model_scheduler = torch.optim.lr_scheduler.StepLR(model_optimizer, step_size=10, gamma=0.5)
 
+    for _ in range(start_epoch):
+        embed_scheduler.step()
+        model_scheduler.step()
+
     print(f"model parameter : {sum(p.numel() for p in model.parameters() if p.requires_grad)}")
 
     for epoch in range(start_epoch, args.epochs):
