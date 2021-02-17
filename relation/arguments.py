@@ -71,8 +71,8 @@ parser.add_argument('--log_dir',
 
 parser.add_argument('-d', '--dataset',
                     type=str,
-                    help="Select dataset [omniglot | miniImagenet]",
-                    default='miniImagenet')
+                    help="Select dataset [omniglot | miniImageNet]",
+                    default='miniImageNet')
 
 parser.add_argument('-m', '--model',
                     type=str,
