@@ -50,7 +50,7 @@ def get_dataloader(args, *modes):
         res.append(data_loader)
 
     if 'train' in modes[0]:
-        print("Loading data...", end='')
+        print("Done")
     if len(modes) == 1:
         return res[0]
     else:

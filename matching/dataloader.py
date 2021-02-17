@@ -49,7 +49,7 @@ def get_dataloader(args, *modes):
         res.append(data_loader)
 
     if 'train' in modes[0]:
-        print("Loading data...", end='')
+        print("Done")
     if len(modes) == 1:
         return res[0]
     else:
@@ -91,7 +91,7 @@ class MatchingBatchSampler(Sampler):
                 s_s = slice(i * ns, (i + 1) * ns)  # 하나의 클래스당 선택한 support 이미지
                 s_q = slice(i * nq, (i + 1) * nq)  # 하나의 클래스당 선택한 query 이미지
 
-                label = c.tiem()
+                label = c.item()
                 sample_idxs = torch.randperm(self.num_per_class[label])[:ns + nq]
 
                 batch_s[s_s] = self.indexes[label][sample_idxs][:ns]
