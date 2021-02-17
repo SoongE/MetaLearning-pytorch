@@ -5,7 +5,7 @@ import numpy as np
 
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import Sampler
-from utils.dataset import OmniglotDataset, MiniImagenetDataset, get_data_dir
+from utils.dataset import OmniglotDataset, MiniImageNetDataset, get_data_dir
 
 DATADIR = get_data_dir()
 
@@ -25,12 +25,12 @@ def get_dataloader(args, *modes):
                     os.makedirs(os.path.dirname(mdb_path))
                 torch.save(dataset, mdb_path)
 
-        elif args.dataset == 'miniImagenet':
-            mdb_path = os.path.join(DATADIR, 'relation_mdb', 'miniImagenet_' + mode + '.mdb')
+        elif args.dataset == 'miniImageNet':
+            mdb_path = os.path.join(DATADIR, 'relation_mdb', 'miniImageNet_' + mode + '.mdb')
             try:
                 dataset = torch.load(mdb_path)
             except FileNotFoundError:
-                dataset = MiniImagenetDataset(mode)
+                dataset = MiniImageNetDataset(mode)
                 if not os.path.exists(os.path.dirname(mdb_path)):
                     os.makedirs(os.path.dirname(mdb_path))
                 torch.save(dataset, mdb_path)
