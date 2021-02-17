@@ -2,6 +2,8 @@ import os
 import json
 import math
 
+import torch
+
 
 class CustomArgs:
     def __init__(self, parser):
@@ -90,3 +92,29 @@ def pairwise_distances(x, y, matching_fn):
         return -(expanded_x * expanded_y).sum(dim=2)
     else:
         raise (ValueError('Unsupported similarity function'))
+
+
+def split_support_query_set(x, y, num_class, num_support, num_query):
+    """
+    x: Input
+    y: Label
+    num_class: Number of class per episode
+    num_support: Number of examples for support set
+    num_query: Number of examples for query set
+    """
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    num_sample_support = num_class * num_support
+    x_support, x_query = x[:num_sample_support], x[num_sample_support:]
+    y_support, y_query = y[:num_sample_support], y[num_sample_support:]
+
+    _classes = torch.unique(y_support)
+
+    support_idx = torch.stack(list(map(lambda c: y_support.eq(c).nonzero(as_tuple=False).squeeze(1), _classes)))
+    xs = torch.cat([x_support[idx_list] for idx_list in support_idx])
+
+    query_idx = torch.stack(list(map(lambda c: y_query.eq(c).nonzero(as_tuple=False).squeeze(1), _classes)))
+    xq = torch.cat([x_query[idx_list] for idx_list in query_idx])
+
+    yq = torch.arange(0, len(_classes), 1 / num_query).long().to(device)
+
+    return xs, xq, yq
