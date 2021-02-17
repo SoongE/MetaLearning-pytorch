@@ -108,17 +108,18 @@ class MatchingNetworks(nn.Module):
         self.k_query_val = k_query_val
         self.fce = fce
         self.distance_fn = distance_fn
+        self.is_train = True
 
         self.classifier = Classifier(in_channel)
         if self.fce:
             self.g = BidirectionalLSTM(lstm_input_size, lstm_layers).to(device)
             self.f = AttentionLSTM(lstm_input_size, unrolling_steps).to(device)
 
-    def forward(self, x, y, is_train=True):
+    def forward(self, x, y):
         embedding = self.classifier(x)
 
         support, query, y_query = split_support_query_set(embedding, y, self.n_way, self.k_support,
-                                                          self.k_query if is_train else self.k_query_val)
+                                                          self.k_query if self.is_train else self.k_query_val)
 
         if self.fce:
             support = self.g(support.unsqueeze(1)).squeeze(1)
@@ -132,6 +133,12 @@ class MatchingNetworks(nn.Module):
         y_pred = torch.mm(attention, y_one_hot)
 
         return y_pred.clamp(1e-8, 1 - 1e-8), y_query
+
+    def custom_train(self):
+        self.is_train = True
+
+    def custom_eval(self):
+        self.is_train = False
 
 
 if __name__ == '__main__':
