@@ -118,8 +118,9 @@ class MatchingNetworks(nn.Module):
     def forward(self, x, y):
         embedding = self.classifier(x)
 
-        support, query, y_query = split_support_query_set(embedding, y, self.n_way, self.k_support,
-                                                          self.k_query if self.is_train else self.k_query_val)
+        num_query = self.k_query if self.is_train else self.k_query_val
+
+        support, query, y_query = split_support_query_set(embedding, y, self.n_way, self.k_support, num_query)
 
         if self.fce:
             support = self.g(support.unsqueeze(1)).squeeze(1)
@@ -129,7 +130,8 @@ class MatchingNetworks(nn.Module):
 
         attention = F.softmax(-distance, dim=1)
 
-        y_one_hot = torch.zeros(self.k_support * self.n_way, self.n_way).to(device).scatter(1, y_query.unsqueeze(-1), 1)
+        _scatter = torch.arange(0, self.n_way, 1 / self.k_query).long().to(device).unsqueeze(-1)
+        y_one_hot = torch.zeros(self.k_query * self.n_way, self.n_way).to(device).scatter(1, _scatter, 1)
         y_pred = torch.mm(attention, y_one_hot)
 
         return y_pred.clamp(1e-8, 1 - 1e-8), y_query
