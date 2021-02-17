@@ -86,7 +86,8 @@ parser.add_argument('--lstm_layers',
 
 parser.add_argument('--unrolling_steps',
                     type=int,
-                    help="Number of unrolling step in AttentionLSTM")
+                    help="Number of unrolling step in AttentionLSTM",
+                    default=2)
 
 parser.add_argument('--resume', action="store_true", help="resume train")
 
