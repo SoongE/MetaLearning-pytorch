@@ -9,9 +9,9 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 class Classifier(nn.Module):
-    def __init__(self, input_channel):
+    def __init__(self, in_channel):
         super().__init__()
-        self.block1 = ConvBlock(input_channel, 64, 3, activation='ReLU', max_pool=2, padding=1)
+        self.block1 = ConvBlock(in_channel, 64, 3, activation='ReLU', max_pool=2, padding=1)
         self.block2 = ConvBlock(64, 64, 3, activation='ReLU', max_pool=2, padding=1)
         self.block3 = ConvBlock(64, 64, 3, activation='ReLU', max_pool=2, padding=1)
         self.block4 = ConvBlock(64, 64, 3, activation='ReLU', max_pool=2, padding=1)
@@ -88,34 +88,37 @@ class AttentionLSTM(nn.Module):
 
 
 class MatchingNetworks(nn.Module):
-    def __init__(self, n_way, k_support, k_query, input_channel, lstm_layers, lstm_input_size, unrolling_step,
+    def __init__(self, n_way, k_support, k_query, k_query_val, in_channel, lstm_layers, lstm_input_size,
+                 unrolling_steps,
                  fce=True,
                  distance_fn='cosine'):
         """
         n_way = Number of classes in support set.
         k_support = Number of examples per class in support set. k_shot
         k_query = Number of examples per class in query set. k_shot
-        input_channel: Color channel. Omniglot = 1, miniImageNet = 3
+        in_channel: Color channel. Omniglot = 1, miniImageNet = 3
         lstm_layers: Number of lstm layers in the bidirectional LSTM.
         lstm_input_size: Input size of two LSTM. Omniglot = 64, miniImageNet = 1600
-        unrolling_step: Number of unrolling step.
+        unrolling_steps: Number of unrolling step.
         """
         super().__init__()
         self.n_way = n_way
         self.k_support = k_support
         self.k_query = k_query
+        self.k_query_val = k_query_val
         self.fce = fce
         self.distance_fn = distance_fn
 
-        self.classifier = Classifier(input_channel)
+        self.classifier = Classifier(in_channel)
         if self.fce:
             self.g = BidirectionalLSTM(lstm_input_size, lstm_layers).to(device)
-            self.f = AttentionLSTM(lstm_input_size, unrolling_step).to(device)
+            self.f = AttentionLSTM(lstm_input_size, unrolling_steps).to(device)
 
-    def forward(self, x, y):
+    def forward(self, x, y, is_train=True):
         embedding = self.classifier(x)
 
-        support, query, y_query = split_support_query_set(embedding, y, self.n_way, self.k_support, self.k_query)
+        support, query, y_query = split_support_query_set(embedding, y, self.n_way, self.k_support,
+                                                          self.k_query if is_train else self.k_query_val)
 
         if self.fce:
             support = self.g(support.unsqueeze(1)).squeeze(1)
@@ -139,8 +142,10 @@ if __name__ == '__main__':
     y2 = torch.LongTensor([x for x in range(3) for _ in range(5)])
     y = torch.cat((y1, y2))
 
-    model = MatchingNetworks(3, 5, 5, 3, 1, 1600, 2)
+    model = MatchingNetworks(3, 5, 5, 5, 3, 1, 1600, 2)
 
     y_pred, y = model(x, y)
 
     loss = torch.nn.CrossEntropyLoss()(y_pred, y)
+
+    acc = y_pred.argmax(dim=1).eq(y).float().mean()
