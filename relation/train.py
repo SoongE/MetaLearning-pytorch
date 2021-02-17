@@ -13,6 +13,7 @@ from arguments import get_args
 from dataloader import get_dataloader
 from relationnet import RelationNetwork, Embedding
 from utils.train_utils import AverageMeter, save_checkpoint
+from utils.common import split_support_query_set
 
 best_acc1 = 0
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -192,24 +193,6 @@ def validate(val_loader, model, embedding, criterion, epoch):
         writer.add_scalar("Acc/Val", accuracy, total_epoch + i)
 
     return losses.avg, accuracies.avg
-
-
-def split_support_query_set(x, y, num_class, num_support, num_query):
-    num_sample_support = num_class * num_support
-    x_support, x_query = x[:num_sample_support], x[num_sample_support:]
-    y_support, y_query = y[:num_sample_support], y[num_sample_support:]
-
-    _classes = torch.unique(y_support)
-
-    support_idx = torch.stack(list(map(lambda c: y_support.eq(c).nonzero().squeeze(1), _classes)))
-    xs = torch.cat([x_support[idx_list] for idx_list in support_idx])
-
-    query_idx = torch.stack(list(map(lambda c: y_query.eq(c).nonzero().squeeze(1), _classes)))
-    xq = torch.cat([x_query[idx_list] for idx_list in query_idx])
-
-    yq = torch.LongTensor([x for x in range(len(_classes)) for _ in range(num_query)]).to(device)
-
-    return xs, xq, yq
 
 
 if __name__ == '__main__':
