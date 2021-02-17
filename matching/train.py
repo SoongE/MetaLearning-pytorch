@@ -94,6 +94,7 @@ def train(train_loader, model, optimizer, criterion, epoch):
     total_epoch = len(train_loader) * epoch
 
     model.train()
+    model.custom_train()
     for i, data in enumerate(train_loader):
         x, y = data[0].to(device), data[1].to(device)
 
@@ -120,10 +121,11 @@ def validate(val_loader, model, criterion, epoch):
     total_epoch = len(val_loader) * epoch
 
     model.eval()
+    model.custom_eval()
     for i, data in enumerate(val_loader):
         x, y = data[0].to(device), data[1].to(device)
 
-        y_pred, y = model(x, y)
+        y_pred, y = model(x, y, is_train=False)
 
         loss = criterion(y_pred, y)
         acc = y_pred.argmax(dim=1).eq(y).float().mean()
