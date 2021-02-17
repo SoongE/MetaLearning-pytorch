@@ -57,7 +57,7 @@ def main():
             except_list.append(f"checkpoint and params are not exist in {exp}")
             continue
 
-        if args.dataset == 'miniImagenet':
+        if args.dataset == 'miniImageNet':
             in_channel = 3
             feature_dim = 64 * 3 * 3
             test_loader = get_dataloader(args, 'val')
