@@ -106,7 +106,7 @@ def train(train_loader, model, optimizer, criterion, epoch):
 
         optimizer.zero_grad()
         loss.backward()
-        clip_grad_norm_(model.parameters(), 3)
+        # clip_grad_norm_(model.parameters(), 3)
         optimizer.step()
 
         writer.add_scalar("Loss/Train", loss.item(), total_epoch + i)
