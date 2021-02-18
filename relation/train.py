@@ -64,7 +64,7 @@ def main():
 
         print(f"load checkpoint {args.exp_name}")
     else:
-        start_epoch = 0
+        start_epoch = 1
 
     # embed_scheduler = torch.optim.lr_scheduler.MultiplicativeLR(optimizer=embed_optimizer,
     #                                                             lr_lambda=lambda epoch: 0.5)
@@ -79,7 +79,7 @@ def main():
 
     print(f"model parameter : {sum(p.numel() for p in model.parameters() if p.requires_grad)}")
 
-    for epoch in range(start_epoch, args.epochs):
+    for epoch in range(start_epoch, args.epochs + 1):
         embed_scheduler.step()
         model_scheduler.step()
 
@@ -92,7 +92,7 @@ def main():
         else:
             is_best = False
 
-        if epoch % args.save_iter == 0 or is_best:
+        if epoch % args.save_iter == 0 or is_best or epoch == args.epochs:
             save_checkpoint({
                 'model_state_dict': model.state_dict(),
                 'embedding_state_dict': embedding.state_dict(),

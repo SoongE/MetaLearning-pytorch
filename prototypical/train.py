@@ -63,14 +63,14 @@ def main():
 
         print(f"load checkpoint {args.exp_name}")
     else:
-        start_epoch = 0
+        start_epoch = 1
 
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer=optimizer, gamma=args.lr_scheduler_gamma,
                                                 step_size=args.lr_scheduler_step)
 
     print(f"model parameter : {sum(p.numel() for p in model.parameters() if p.requires_grad)}")
 
-    for epoch in range(start_epoch, args.epochs):
+    for epoch in range(start_epoch, args.epochs + 1):
 
         train_loss = train(train_loader, model, optimizer, criterion, epoch)
         val_loss, acc1 = validate(val_loader, model, criterion, epoch)
@@ -80,13 +80,13 @@ def main():
             best_acc1 = acc1
         else:
             is_best = False
-
-        save_checkpoint({
-            'epoch': epoch,
-            'model_state_dict': model.state_dict(),
-            'best_acc1': best_acc1,
-            'optimizer_state_dict': optimizer.state_dict(),
-        }, is_best, args)
+        if epoch % args.save_iter == 0 or is_best or epoch == args.epochs:
+            save_checkpoint({
+                'epoch': epoch,
+                'model_state_dict': model.state_dict(),
+                'best_acc1': best_acc1,
+                'optimizer_state_dict': optimizer.state_dict(),
+            }, is_best, args)
 
         writer.add_scalar("Loss/1Epoch", val_loss, epoch)
         writer.add_scalar("Acc/1Epoch", acc1, epoch)
