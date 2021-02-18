@@ -69,6 +69,11 @@ parser.add_argument('-seed', '--manual_seed',
                     help='input for the manual seeds initializations',
                     default=7)
 
+parser.add_argument('--save_iter',
+                    type=int,
+                    help='number of iteration for saving model',
+                    default=20)
+
 parser.add_argument('--log_dir',
                     default='runs',
                     type=str,
