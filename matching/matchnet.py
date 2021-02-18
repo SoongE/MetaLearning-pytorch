@@ -94,8 +94,9 @@ class MatchingNetworks(nn.Module):
                  distance_fn='cosine'):
         """
         n_way = Number of classes in support set.
-        k_support = Number of examples per class in support set. k_shot
-        k_query = Number of examples per class in query set. k_shot
+        k_support = Number of examples per class in train support set. k_shot
+        k_query = Number of examples per class in train query set. k_shot
+        k_query_val = Number of examples per class in validate query set. k_shot
         in_channel: Color channel. Omniglot = 1, miniImageNet = 3
         lstm_layers: Number of lstm layers in the bidirectional LSTM.
         lstm_input_size: Input size of two LSTM. Omniglot = 64, miniImageNet = 1600
@@ -127,14 +128,14 @@ class MatchingNetworks(nn.Module):
             query = self.f(support, query)
 
         distance = pairwise_distances(query, support, self.distance_fn)
-
         attention = F.softmax(-distance, dim=1)
 
-        _scatter = torch.arange(0, self.n_way, 1 / self.k_query).long().to(device).unsqueeze(-1)
-        y_one_hot = torch.zeros(self.k_query * self.n_way, self.n_way).to(device).scatter(1, _scatter, 1)
+        _scatter = torch.arange(0, self.n_way, 1 / self.k_support).long().to(device).unsqueeze(-1)
+        y_one_hot = torch.zeros(self.k_support * self.n_way, self.n_way).to(device).scatter(1, _scatter, 1)
         y_pred = torch.mm(attention, y_one_hot)
 
-        return y_pred.clamp(1e-8, 1 - 1e-8), y_query
+        return y_pred, y_query
+        # return y_pred.clamp(1e-8, 1 - 1e-8), y_query
 
     def custom_train(self):
         self.is_train = True
