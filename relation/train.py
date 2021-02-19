@@ -53,7 +53,7 @@ def main():
     if args.resume:
         try:
             checkpoint = torch.load(sorted(glob(f'{args.log_dir}/checkpoint_*.pth'), key=len)[-1])
-        except:
+        except FileNotFoundError:
             checkpoint = torch.load(args.log_dir + '/model_best.pth')
         model.load_state_dict(checkpoint['model_state_dict'])
         embedding.load_state_dict(checkpoint['embedding_state_dict'])
@@ -66,12 +66,10 @@ def main():
     else:
         start_epoch = 1
 
-    # embed_scheduler = torch.optim.lr_scheduler.MultiplicativeLR(optimizer=embed_optimizer,
-    #                                                             lr_lambda=lambda epoch: 0.5)
-    # model_scheduler = torch.optim.lr_scheduler.MultiplicativeLR(optimizer=model_optimizer,
-    #                                                             lr_lambda=lambda epoch: 0.5)
-    embed_scheduler = torch.optim.lr_scheduler.StepLR(embed_optimizer, step_size=10, gamma=0.5)
-    model_scheduler = torch.optim.lr_scheduler.StepLR(model_optimizer, step_size=10, gamma=0.5)
+    embed_scheduler = torch.optim.lr_scheduler.MultiplicativeLR(optimizer=embed_optimizer,
+                                                                lr_lambda=lambda epoch: 0.5)
+    model_scheduler = torch.optim.lr_scheduler.MultiplicativeLR(optimizer=model_optimizer,
+                                                                lr_lambda=lambda epoch: 0.5)
 
     for _ in range(start_epoch):
         embed_scheduler.step()
@@ -80,19 +78,20 @@ def main():
     print(f"model parameter : {sum(p.numel() for p in model.parameters() if p.requires_grad)}")
 
     for epoch in range(start_epoch, args.epochs + 1):
-        embed_scheduler.step()
-        model_scheduler.step()
 
         train_loss = train(train_loader, model, embedding, model_optimizer, embed_optimizer, criterion, epoch)
-        val_loss, acc1 = validate(val_loader, model, embedding, criterion, epoch)
 
-        if acc1 >= best_acc1:
-            is_best = True
-            best_acc1 = acc1
-        else:
-            is_best = False
+        is_test = False if epoch % args.test_iter else True
+        if is_test or epoch == args.epochs or epoch == 1:
 
-        if epoch % args.save_iter == 0 or is_best or epoch == args.epochs:
+            val_loss, acc1 = validate(val_loader, model, embedding, criterion, epoch)
+
+            if acc1 >= best_acc1:
+                is_best = True
+                best_acc1 = acc1
+            else:
+                is_best = False
+
             save_checkpoint({
                 'model_state_dict': model.state_dict(),
                 'embedding_state_dict': embedding.state_dict(),
@@ -102,9 +101,16 @@ def main():
                 'epoch': epoch,
             }, is_best, args)
 
-            writer.add_scalar("BestAcc", acc1, epoch)
+            if is_best:
+                writer.add_scalar("BestAcc", acc1, epoch)
 
-        print(f"[{epoch}/{args.epochs}] {train_loss:.3f}, {val_loss:.3f}, {acc1:.3f}, # {best_acc1:.3f}")
+            print(f"[{epoch}/{args.epochs}] {train_loss:.3f}, {val_loss:.3f}, {acc1:.3f}, # {best_acc1:.3f}")
+
+        else:
+            print(f"[{epoch}/{args.epochs}] {train_loss:.3f}")
+
+        embed_scheduler.step()
+        model_scheduler.step()
 
     writer.close()
 
@@ -114,7 +120,7 @@ def train(train_loader, model, embedding, model_optimizer, embed_optimizer, crit
     num_class = args.classes_per_it_tr
     num_support = args.num_support_tr
     num_query = args.num_query_tr
-    total_epoch = len(train_loader) * epoch
+    total_epoch = len(train_loader) * (epoch - 1)
 
     model.train()
     embedding.train()
@@ -159,7 +165,7 @@ def validate(val_loader, model, embedding, criterion, epoch):
     num_class = args.classes_per_it_val
     num_support = args.num_support_val
     num_query = args.num_query_val
-    total_epoch = len(val_loader) * epoch
+    total_epoch = len(val_loader) * (epoch - 1)
 
     model.eval()
     embedding.eval()

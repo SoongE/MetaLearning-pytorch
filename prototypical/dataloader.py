@@ -43,12 +43,14 @@ def get_dataloader(args, *modes):
             classes_per_it = args.classes_per_it_tr
             num_support = args.num_support_tr
             num_query = args.num_query_tr
+            episodes = args.episodes_tr
         else:
             classes_per_it = args.classes_per_it_val
             num_support = args.num_support_val
             num_query = args.num_query_val
+            episodes = args.episodes_val
 
-        sampler = PrototypicalBatchSampler(dataset.y, classes_per_it, num_support, num_query, args.iterations)
+        sampler = PrototypicalBatchSampler(dataset.y, classes_per_it, num_support, num_query, episodes)
         data_loader = DataLoader(dataset, batch_sampler=sampler,
                                  pin_memory=True if torch.cuda.is_available() else False)
         res.append(data_loader)

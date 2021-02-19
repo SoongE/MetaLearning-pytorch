@@ -16,6 +16,8 @@ class Classifier(nn.Module):
         self.block3 = ConvBlock(64, 64, 3, activation='ReLU', max_pool=2, padding=1)
         self.block4 = ConvBlock(64, 64, 3, activation='ReLU', max_pool=2, padding=1)
 
+        self.init_params()
+
     def forward(self, x):
         out = self.block1(x)
         out = self.block2(out)
@@ -23,6 +25,13 @@ class Classifier(nn.Module):
         out = self.block4(out)
         out = out.view(x.size(0), -1)
         return out
+
+    def init_params(self):
+        for module in self.modules():
+            if isinstance(module, torch.nn.Conv2d):
+                torch.nn.init.kaiming_uniform_(module.weight)
+                if module.bias is not None:
+                    torch.nn.init.constant_(module.bias, 0)
 
 
 # from https://github.com/oscarknagg/few-shot
