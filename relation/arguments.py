@@ -9,20 +9,30 @@ parser.add_argument('-e', '--exp_name',
                     help='experiment name',
                     default='TEST')
 
-parser.add_argument('-epo', '--epochs',
-                    type=int,
-                    help='number of epochs to train for',
-                    default=100)
-
 parser.add_argument('--lr', '--learning_rate',
                     type=float,
                     help='learning rate for the model, default=0.001',
                     default=1e-3)
 
-parser.add_argument('-epi', '--episodes',
+parser.add_argument('-epo', '--epochs',
                     type=int,
-                    help='number of episodes per epoch, default=100000',
-                    default=10000)
+                    help='number of epochs to train, default = 10',
+                    default=10)
+
+parser.add_argument('--test_iter',
+                    type=int,
+                    help='number of epochs to train, default = 2',
+                    default=2)
+
+parser.add_argument('-epi', '--episodes_tr',
+                    type=int,
+                    help='number of episodes per epoch for validation, default=100000',
+                    default=100000)
+
+parser.add_argument('-epi', '--episodes_val',
+                    type=int,
+                    help='number of episodes per epoch for training, default=1000',
+                    default=1000)
 
 parser.add_argument('-cTr', '--classes_per_it_tr',
                     type=int,
@@ -59,11 +69,6 @@ parser.add_argument('-seed', '--manual_seed',
                     help='input for the manual seeds initializations',
                     default=7)
 
-parser.add_argument('--save_iter',
-                    type=int,
-                    help='number of iteration for saving model',
-                    default=20)
-
 parser.add_argument('--log_dir',
                     default='runs',
                     type=str,
@@ -72,12 +77,7 @@ parser.add_argument('--log_dir',
 parser.add_argument('-d', '--dataset',
                     type=str,
                     help="Select dataset [omniglot | miniImageNet]",
-                    default='miniImageNet')
-
-parser.add_argument('-m', '--model',
-                    type=str,
-                    help='Select model [relationnet]',
-                    default='relationnet')
+                    default='omniglot')
 
 parser.add_argument('--resume', action="store_true", help="resume train")
 
