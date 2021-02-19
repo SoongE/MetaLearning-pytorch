@@ -24,12 +24,12 @@ parser.add_argument('--test_iter',
                     help='number of epochs to train, default = 2',
                     default=2)
 
-parser.add_argument('-epi', '--episodes_tr',
+parser.add_argument('-epi-tr', '--episodes_tr',
                     type=int,
                     help='number of episodes per epoch for validation, default=100000',
                     default=100000)
 
-parser.add_argument('-epi', '--episodes_val',
+parser.add_argument('-epi-val', '--episodes_val',
                     type=int,
                     help='number of episodes per epoch for training, default=1000',
                     default=1000)
