@@ -51,7 +51,7 @@ def main():
     if args.resume:
         try:
             checkpoint = torch.load(sorted(glob(f'{args.log_dir}/checkpoint_*.pth'), key=len)[-1])
-        except:
+        except FileNotFoundError:
             checkpoint = torch.load(args.log_dir + '/model_best.pth')
         model.load_state_dict(checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
@@ -66,15 +66,18 @@ def main():
 
     for epoch in range(start_epoch, args.epochs + 1):
         train_loss = train(train_loader, model, optimizer, criterion, epoch)
-        val_loss, acc1 = validate(val_loader, model, criterion, epoch)
 
-        if acc1 >= best_acc1:
-            is_best = True
-            best_acc1 = acc1
-        else:
-            is_best = False
+        is_test = False if epoch % args.test_iter else True
+        if is_test or epoch == args.epochs or epoch == 1:
 
-        if epoch % args.save_iter == 0 or is_best or epoch == args.epochs:
+            val_loss, acc1 = validate(val_loader, model, criterion, epoch)
+
+            if acc1 >= best_acc1:
+                is_best = True
+                best_acc1 = acc1
+            else:
+                is_best = False
+
             save_checkpoint({
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
@@ -82,16 +85,20 @@ def main():
                 'epoch': epoch,
             }, is_best, args)
 
-            writer.add_scalar("Acc/BestAcc", acc1, epoch)
+            if is_best:
+                writer.add_scalar("Acc/BestAcc", acc1, epoch)
 
-        print(f"[{epoch}/{args.epochs}] {train_loss:.3f}, {val_loss:.3f}, {acc1:.3f}, # {best_acc1:.3f}")
+            print(f"[{epoch}/{args.epochs}] {train_loss:.3f}, {val_loss:.3f}, {acc1:.3f}, # {best_acc1:.3f}")
+
+        else:
+            print(f"[{epoch}/{args.epochs}] {train_loss:.3f}")
 
     writer.close()
 
 
 def train(train_loader, model, optimizer, criterion, epoch):
     losses = AverageMeter()
-    total_epoch = len(train_loader) * epoch
+    total_epoch = len(train_loader) * (epoch - 1)
 
     model.train()
     model.custom_train()
@@ -106,7 +113,7 @@ def train(train_loader, model, optimizer, criterion, epoch):
 
         optimizer.zero_grad()
         loss.backward()
-        # clip_grad_norm_(model.parameters(), 3)
+        clip_grad_norm_(model.parameters(), 1)
         optimizer.step()
 
         writer.add_scalar("Loss/Train", loss.item(), total_epoch + i)
@@ -118,7 +125,7 @@ def train(train_loader, model, optimizer, criterion, epoch):
 def validate(val_loader, model, criterion, epoch):
     losses = AverageMeter()
     accuracies = AverageMeter()
-    total_epoch = len(val_loader) * epoch
+    total_epoch = len(val_loader) * (epoch - 1)
 
     model.eval()
     model.custom_eval()

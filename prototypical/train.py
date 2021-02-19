@@ -54,7 +54,7 @@ def main():
     if args.resume:
         try:
             checkpoint = torch.load(sorted(glob(f'{args.log_dir}/checkpoint_*.pth'), key=len)[-1])
-        except:
+        except FileNotFoundError:
             checkpoint = torch.load(args.log_dir + '/model_best.pth')
         model.load_state_dict(checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
@@ -73,14 +73,18 @@ def main():
     for epoch in range(start_epoch, args.epochs + 1):
 
         train_loss = train(train_loader, model, optimizer, criterion, epoch)
-        val_loss, acc1 = validate(val_loader, model, criterion, epoch)
 
-        if acc1 >= best_acc1:
-            is_best = True
-            best_acc1 = acc1
-        else:
-            is_best = False
-        if epoch % args.save_iter == 0 or is_best or epoch == args.epochs:
+        is_test = False if epoch % args.test_iter else True
+        if is_test or epoch == args.epochs or epoch == 1:
+
+            val_loss, acc1 = validate(val_loader, model, criterion, epoch)
+
+            if acc1 >= best_acc1:
+                is_best = True
+                best_acc1 = acc1
+            else:
+                is_best = False
+
             save_checkpoint({
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),
@@ -88,10 +92,13 @@ def main():
                 'optimizer_state_dict': optimizer.state_dict(),
             }, is_best, args)
 
-        writer.add_scalar("Loss/1Epoch", val_loss, epoch)
-        writer.add_scalar("Acc/1Epoch", acc1, epoch)
+            if is_best:
+                writer.add_scalar("BestAcc", acc1, epoch)
 
-        print(f"[{epoch}/{args.epochs}] {train_loss:.3f}, {val_loss:.3f}, {acc1:.3f}, # {best_acc1:.3f}")
+            print(f"[{epoch}/{args.epochs}] {train_loss:.3f}, {val_loss:.3f}, {acc1:.3f}, # {best_acc1:.3f}")
+
+        else:
+            print(f"[{epoch}/{args.epochs}] {train_loss:.3f}")
 
         scheduler.step()
 
@@ -101,7 +108,7 @@ def main():
 def train(train_loader, model, optimizer, criterion, epoch):
     losses = AverageMeter()
     num_support = args.num_support_tr
-    total_epoch = len(train_loader) * epoch
+    total_epoch = len(train_loader) * (epoch - 1)
 
     # switch to train mode
     model.train()
@@ -129,7 +136,7 @@ def validate(val_loader, model, criterion, epoch):
     losses = AverageMeter()
     top1 = AverageMeter()
     num_support = args.num_support_val
-    total_epoch = len(val_loader) * epoch
+    total_epoch = len(val_loader) * (epoch - 1)
 
     # switch to evaluate mode
     model.eval()
