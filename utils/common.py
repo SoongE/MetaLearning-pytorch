@@ -115,6 +115,7 @@ def split_support_query_set(x, y, num_class, num_support, num_query):
     query_idx = torch.stack(list(map(lambda c: y_query.eq(c).nonzero(as_tuple=False).squeeze(1), _classes)))
     xq = torch.cat([x_query[idx_list] for idx_list in query_idx])
 
+    ys = torch.arange(0, len(_classes), 1 / num_support).long().to(device)
     yq = torch.arange(0, len(_classes), 1 / num_query).long().to(device)
 
-    return xs, xq, yq
+    return xs, xq, ys, yq
