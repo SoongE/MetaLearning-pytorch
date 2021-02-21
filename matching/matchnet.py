@@ -130,7 +130,7 @@ class MatchingNetworks(nn.Module):
 
         num_query = self.k_query if self.is_train else self.k_query_val
 
-        support, query, y_query = split_support_query_set(embedding, y, self.n_way, self.k_support, num_query)
+        support, query, _, y_query = split_support_query_set(embedding, y, self.n_way, self.k_support, num_query)
 
         if self.fce:
             support = self.g(support.unsqueeze(1)).squeeze(1)
@@ -144,7 +144,6 @@ class MatchingNetworks(nn.Module):
         y_pred = torch.mm(attention, y_one_hot)
 
         return y_pred, y_query
-        # return y_pred.clamp(1e-8, 1 - 1e-8), y_query
 
     def custom_train(self):
         self.is_train = True
