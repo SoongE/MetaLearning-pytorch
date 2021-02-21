@@ -58,10 +58,8 @@ def main():
             continue
 
         if args.dataset == 'omniglot':
-            args.iteration = 1000
             test_loader = get_dataloader(args, 'test')
         else:
-            args.iteration = 600
             test_loader = get_dataloader(args, 'val')
 
         input_dim = 1 if args.dataset == 'omniglot' else 3
@@ -104,15 +102,15 @@ def test(test_loader, model, criterion):
         losses.append(loss)
         top1.append(acc1)
 
-        print(y_pred)
-        print(y)
-        # probs = [torch.nn.functional.softmax(el, dim=0)[i].item() for i, el in zip(y, y_pred)]
-        #
-        # summary.add_figure('predictions vs. actuals',
-        #                    plot_classes_preds(predict_labels, probs, [sample_images, test_images],
-        #                                       [sample_labels, test_labels], [sample_class, test_class]),
-        #                    global_step=episode + 1)
-        # write_plot_to_tensorboard = False
+        probs = [torch.nn.functional.softmax(el, dim=0)[i].item() for i, el in zip(y, y_pred)]
+
+        predict_labels = y_pred.softmax(dim=1).argmax()
+
+        summary.add_figure('predictions vs. actuals',
+                           plot_classes_preds(predict_labels, probs, [sample_images, test_images],
+                                              [sample_labels, test_labels], [sample_class, test_class]),
+                           global_step=episode + 1)
+        write_plot_to_tensorboard = False
 
     return losses, top1
 
