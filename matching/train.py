@@ -153,9 +153,9 @@ def validate(val_loader, model, criterion, epoch):
         accuracies.update(acc.item(), y_pred.size(0))
 
         if i == 0:
-            num_class = args.classes_per_it_tr
-            num_support = args.num_support_tr
-            num_query = args.num_query_tr
+            num_class = args.classes_per_it_val
+            num_support = args.num_support_val
+            num_query = args.num_query_val
             x_support, x_query, y_support, y_query = split_support_query_set(x, _y, num_class, num_support, num_query)
             y_hat = y_pred.argmax(1)
             writer.add_figure('y_prediction vs. y/Val',
