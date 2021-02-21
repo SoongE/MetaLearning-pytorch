@@ -38,8 +38,22 @@ class MiniImageNetDataset(Dataset):
         if not os.path.exists(self.root_dir):
             print('Data not found. Downloading data')
             self.download()
+        if mode == 'matching_train':
+            import numpy as np
+            dataset_train = pickle.load(open(os.path.join(self.root_dir, 'train'), 'rb'))
+            dataset_val = pickle.load(open(os.path.join(self.root_dir, 'val'), 'rb'))
 
-        dataset = pickle.load(open(os.path.join(self.root_dir, mode), 'rb'))
+            image_data_train = dataset_train['image_data']
+            class_dict_train = dataset_train['class_dict']
+            image_data_val = dataset_val['image_data']
+            class_dict_val = dataset_val['class_dict']
+
+            image_data = np.concatenate((image_data_train, image_data_val), axis=0)
+            class_dict = class_dict_train.copy()
+            class_dict.update(class_dict_val)
+            dataset = {'image_data': image_data, 'class_dict': class_dict}
+        else:
+            dataset = pickle.load(open(os.path.join(self.root_dir, mode), 'rb'))
 
         self.x = dataset['image_data']
 

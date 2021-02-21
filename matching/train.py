@@ -30,7 +30,7 @@ def main():
     torch.cuda.manual_seed(args.manual_seed)
 
     if args.dataset.lower() == 'miniimagenet':
-        train_loader, val_loader = get_dataloader(args, 'train', 'val')
+        train_loader, val_loader = get_dataloader(args, 'matching_train', 'val')
         in_channel = 3
         lstm_input_size = 1600
     elif args.dataset.lower() == 'omniglot':
