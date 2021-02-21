@@ -104,9 +104,9 @@ def train(train_loader, model, optimizer, criterion, epoch):
     model.train()
     model.custom_train()
     for i, data in enumerate(train_loader):
-        x, y = data[0].to(device), data[1].to(device)
+        x, _y = data[0].to(device), data[1].to(device)
 
-        y_pred, y = model(x, y)
+        y_pred, y = model(x, _y)
 
         loss = criterion(y_pred, y)
 
@@ -121,7 +121,7 @@ def train(train_loader, model, optimizer, criterion, epoch):
             num_class = args.classes_per_it_tr
             num_support = args.num_support_tr
             num_query = args.num_query_tr
-            x_support, x_query, y_support, y_query = split_support_query_set(x, y, num_class, num_support, num_query)
+            x_support, x_query, y_support, y_query = split_support_query_set(x, _y, num_class, num_support, num_query)
             y_hat = y_pred.argmax(1)
             writer.add_figure('y_prediction vs. y/Train',
                               plot_classes_preds(y_hat, y_pred, [x_support, x_query],
