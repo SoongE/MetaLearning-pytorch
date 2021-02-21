@@ -50,10 +50,6 @@ def main():
             elif file.endswith('.json'):
                 params = json.load(open(os.path.abspath(file)))
                 args = SimpleNamespace(**params)
-                if args.dataset == 'omniglot':
-                    args.iteration = 1000
-                else:
-                    args.iteration = 600
 
         if checkpoint is None or args is None:
             except_list.append(f"checkpoint and params are not exist in {exp}")
