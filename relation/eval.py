@@ -14,11 +14,13 @@ import numpy as np
 from arguments import get_args
 from dataloader import get_dataloader
 from relationnet import RelationNetwork, Embedding
-from utils.common import margin_of_error
+from utils.common import margin_of_error, split_support_query_set
+from torch.utils.tensorboard import SummaryWriter
 
 best_acc1 = 0
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 args = get_args()
+summary = SummaryWriter()
 
 
 def main():
@@ -62,7 +64,7 @@ def main():
             feature_dim = 64 * 3 * 3
             test_loader = get_dataloader(args, 'val')
         elif args.dataset == 'omniglot':
-            in_channel = 3
+            in_channel = 1
             feature_dim = 64
             test_loader = get_dataloader(args, 'test')
         else:
@@ -101,7 +103,7 @@ def test(test_loader, model, embedding, criterion):
     embedding.eval()
     for i, data in enumerate(test_loader):
         x, y = data[0].to(device), data[1].to(device)
-        x_support, x_query, y_query = split_support_query_set(x, y, num_class, num_support, num_query)
+        x_support, x_query, y_support, y_query = split_support_query_set(x, y, num_class, num_support, num_query)
 
         support_vector = embedding(x_support)
         query_vector = embedding(x_query)
@@ -126,24 +128,6 @@ def test(test_loader, model, embedding, criterion):
         accuracies.append(accuracy)
 
     return losses, accuracies
-
-
-def split_support_query_set(x, y, num_class, num_support, num_query):
-    num_sample_support = num_class * num_support
-    x_support, x_query = x[:num_sample_support], x[num_sample_support:]
-    y_support, y_query = y[:num_sample_support], y[num_sample_support:]
-
-    _classes = torch.unique(y_support)
-
-    support_idx = torch.stack(list(map(lambda c: y_support.eq(c).nonzero().squeeze(1), _classes)))
-    xs = torch.cat([x_support[idx_list] for idx_list in support_idx])
-
-    query_idx = torch.stack(list(map(lambda c: y_query.eq(c).nonzero().squeeze(1), _classes)))
-    xq = torch.cat([x_query[idx_list] for idx_list in query_idx])
-
-    yq = torch.LongTensor([x for x in range(len(_classes)) for _ in range(num_query)]).to(device)
-
-    return xs, xq, yq
 
 
 if __name__ == '__main__':

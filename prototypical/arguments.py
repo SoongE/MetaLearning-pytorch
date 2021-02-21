@@ -14,6 +14,16 @@ parser.add_argument('-epo', '--epochs',
                     help='number of epochs to train for',
                     default=100)
 
+parser.add_argument('-epi-tr', '--episodes_tr',
+                    type=int,
+                    help='number of episodes per epoch for validation, default=100',
+                    default=100)
+
+parser.add_argument('-epi-val', '--episodes_val',
+                    type=int,
+                    help='number of episodes per epoch for training, default=100',
+                    default=100)
+
 parser.add_argument('--lr', '--learning_rate',
                     type=float,
                     help='learning rate for the model, default=0.001',
@@ -28,11 +38,6 @@ parser.add_argument('-lrG', '--lr_scheduler_gamma',
                     type=float,
                     help='StepLR learning rate scheduler gamma, default=0.5',
                     default=0.5)
-
-parser.add_argument('-its', '--iterations',
-                    type=int,
-                    help='number of episodes per epoch, default=100',
-                    default=100)
 
 parser.add_argument('-cTr', '--classes_per_it_tr',
                     type=int,

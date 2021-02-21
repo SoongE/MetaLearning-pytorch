@@ -12,7 +12,7 @@ import numpy as np
 from arguments import get_args
 from dataloader import get_dataloader
 from relationnet import RelationNetwork, Embedding
-from utils.train_utils import AverageMeter, save_checkpoint
+from utils.train_utils import AverageMeter, save_checkpoint, plot_classes_preds
 from utils.common import split_support_query_set
 
 best_acc1 = 0
@@ -126,7 +126,7 @@ def train(train_loader, model, embedding, model_optimizer, embed_optimizer, crit
     embedding.train()
     for i, data in enumerate(train_loader):
         x, y = data[0].to(device), data[1].to(device)
-        x_support, x_query, y_query = split_support_query_set(x, y, num_class, num_support, num_query)
+        x_support, x_query, y_support, y_query = split_support_query_set(x, y, num_class, num_support, num_query)
 
         support_vector = embedding(x_support)
         query_vector = embedding(x_query)
@@ -152,6 +152,12 @@ def train(train_loader, model, embedding, model_optimizer, embed_optimizer, crit
         model_optimizer.step()
         embed_optimizer.step()
 
+        if i == 0:
+            y_hat = y_pred.argmax(1)
+            writer.add_figure('predictions vs. actuals',
+                              plot_classes_preds(y_hat, y_pred, [x_support, x_query],
+                                                 [y_support, y_query], num_class, num_support, num_query),
+                              global_step=total_epoch)
         writer.add_scalar("Loss/Train", loss.item(), total_epoch + i)
 
     return losses.avg
@@ -171,7 +177,7 @@ def validate(val_loader, model, embedding, criterion, epoch):
     embedding.eval()
     for i, data in enumerate(val_loader):
         x, y = data[0].to(device), data[1].to(device)
-        x_support, x_query, y_query = split_support_query_set(x, y, num_class, num_support, num_query)
+        x_support, x_query, _, y_query = split_support_query_set(x, y, num_class, num_support, num_query)
 
         support_vector = embedding(x_support)
         query_vector = embedding(x_query)
