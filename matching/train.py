@@ -13,7 +13,8 @@ import numpy as np
 from arguments import get_args
 from dataloader import get_dataloader
 from matchnet import MatchingNetworks
-from utils.train_utils import AverageMeter, save_checkpoint
+from utils.train_utils import AverageMeter, save_checkpoint, plot_classes_preds
+from utils.common import split_support_query_set
 
 best_acc1 = 0
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -51,7 +52,7 @@ def main():
     if args.resume:
         try:
             checkpoint = torch.load(sorted(glob(f'{args.log_dir}/checkpoint_*.pth'), key=len)[-1])
-        except FileNotFoundError:
+        except Exception:
             checkpoint = torch.load(args.log_dir + '/model_best.pth')
         model.load_state_dict(checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
@@ -116,6 +117,17 @@ def train(train_loader, model, optimizer, criterion, epoch):
         clip_grad_norm_(model.parameters(), 1)
         optimizer.step()
 
+        if i == 0:
+            num_class = args.classes_per_it_tr
+            num_support = args.num_support_tr
+            num_query = args.num_query_tr
+            x_support, x_query, y_support, y_query = split_support_query_set(x, y, num_class, num_support, num_query)
+            y_hat = y_pred.argmax(1)
+            writer.add_figure('y_prediction vs. y/Train',
+                              plot_classes_preds(y_hat, y_pred, [x_support, x_query],
+                                                 [y_support, y_query], num_class, num_support, num_query),
+                              global_step=total_epoch)
+
         writer.add_scalar("Loss/Train", loss.item(), total_epoch + i)
 
     return losses.avg
@@ -130,15 +142,26 @@ def validate(val_loader, model, criterion, epoch):
     model.eval()
     model.custom_eval()
     for i, data in enumerate(val_loader):
-        x, y = data[0].to(device), data[1].to(device)
+        x, _y = data[0].to(device), data[1].to(device)
 
-        y_pred, y = model(x, y)
+        y_pred, y = model(x, _y)
 
         loss = criterion(y_pred, y)
         acc = y_pred.argmax(dim=1).eq(y).float().mean()
 
         losses.update(loss.item(), y_pred.size(0))
         accuracies.update(acc.item(), y_pred.size(0))
+
+        if i == 0:
+            num_class = args.classes_per_it_tr
+            num_support = args.num_support_tr
+            num_query = args.num_query_tr
+            x_support, x_query, y_support, y_query = split_support_query_set(x, _y, num_class, num_support, num_query)
+            y_hat = y_pred.argmax(1)
+            writer.add_figure('y_prediction vs. y/Val',
+                              plot_classes_preds(y_hat, y_pred, [x_support, x_query],
+                                                 [y_support, y_query], num_class, num_support, num_query),
+                              global_step=total_epoch)
 
         writer.add_scalar("Loss/Val", loss.item(), total_epoch + i)
         writer.add_scalar("Acc/Val", acc.item(), total_epoch + i)

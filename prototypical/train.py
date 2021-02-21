@@ -54,7 +54,7 @@ def main():
     if args.resume:
         try:
             checkpoint = torch.load(sorted(glob(f'{args.log_dir}/checkpoint_*.pth'), key=len)[-1])
-        except FileNotFoundError:
+        except Exception:
             checkpoint = torch.load(args.log_dir + '/model_best.pth')
         model.load_state_dict(checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])

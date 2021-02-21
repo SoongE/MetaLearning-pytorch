@@ -53,7 +53,7 @@ def main():
     if args.resume:
         try:
             checkpoint = torch.load(sorted(glob(f'{args.log_dir}/checkpoint_*.pth'), key=len)[-1])
-        except FileNotFoundError:
+        except Exception:
             checkpoint = torch.load(args.log_dir + '/model_best.pth')
         model.load_state_dict(checkpoint['model_state_dict'])
         embedding.load_state_dict(checkpoint['embedding_state_dict'])
@@ -154,7 +154,7 @@ def train(train_loader, model, embedding, model_optimizer, embed_optimizer, crit
 
         if i == 0:
             y_hat = y_pred.argmax(1)
-            writer.add_figure('predictions vs. actuals',
+            writer.add_figure('y_prediction vs. y/Train',
                               plot_classes_preds(y_hat, y_pred, [x_support, x_query],
                                                  [y_support, y_query], num_class, num_support, num_query),
                               global_step=total_epoch)
@@ -177,7 +177,7 @@ def validate(val_loader, model, embedding, criterion, epoch):
     embedding.eval()
     for i, data in enumerate(val_loader):
         x, y = data[0].to(device), data[1].to(device)
-        x_support, x_query, _, y_query = split_support_query_set(x, y, num_class, num_support, num_query)
+        x_support, x_query, y_support, y_query = split_support_query_set(x, y, num_class, num_support, num_query)
 
         support_vector = embedding(x_support)
         query_vector = embedding(x_query)
@@ -190,17 +190,23 @@ def validate(val_loader, model, embedding, criterion, epoch):
 
         _concat = torch.cat((support_vector, query_vector), dim=1)
 
-        output = model(_concat).view(-1, num_class)
+        y_pred = model(_concat).view(-1, num_class)
 
         y_one_hot = torch.zeros(num_query * num_class, num_class).to(device).scatter_(1, y_query.unsqueeze(1), 1)
-        loss = criterion(output, y_one_hot)
+        loss = criterion(y_pred, y_one_hot)
 
-        losses.update(loss.item(), output.size(0))
+        losses.update(loss.item(), y_pred.size(0))
 
-        y_hat = output.argmax(1)
+        y_hat = y_pred.argmax(1)
         accuracy = y_hat.eq(y_query).float().mean()
         accuracies.update(accuracy)
 
+        if i == 0:
+            y_hat = y_pred.argmax(1)
+            writer.add_figure('y_prediction vs. y/Val',
+                              plot_classes_preds(y_hat, y_pred, [x_support, x_query],
+                                                 [y_support, y_query], num_class, num_support, num_query),
+                              global_step=total_epoch)
         writer.add_scalar("Loss/Val", loss.item(), total_epoch + i)
         writer.add_scalar("Acc/Val", accuracy, total_epoch + i)
 
