@@ -44,9 +44,16 @@ All parameters are present in `arguments.py`. If you want to adjust the paramete
 
 ### 📈Result
 
-will be soon.
+| Model                | Reference Paper | This Repo |
+| -------------------- | --------------- | --------- |
+| Omniglot 5-w 1-s     | 99.6±0.2%       | 99.6%     |
+| Omniglot 5-w 5-s     | 99.8±0.1%       | 99.7%     |
+| Omniglot 20-w 1-s    | 97.6±0.2%       | 97.3%     |
+| Omniglot 20-w 1-s    | 99.1±0.1        | 99.1%     |
+| miniImageNet 5-w 1-s | 50.44±0.82%     | 51.2±0.3% |
+| miniImageNet 5-w 5-s | 65.32±0.66%     | 65.6±0.2% |
 
-
+![omniglot_result](asset/omniglot_result.png)
 
 ### 📌Reference
 
