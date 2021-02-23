@@ -59,6 +59,9 @@ class MiniImageNetDataset(Dataset):
 
         self.y = torch.arange(len(self.x))
         for idx, (name, id) in enumerate(dataset['class_dict'].items()):
+            if idx > 63:
+                id[0] = id[0] + 38400
+                id[-1] = id[-1] + 38400
             s = slice(id[0], id[-1] + 1)
             self.y[s] = idx
 
